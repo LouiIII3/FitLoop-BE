@@ -19,9 +19,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import fitloop.member.auth.MemberIdentity;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -43,12 +45,28 @@ public class ProductService {
     private final ProductTagRepository productTagRepository;
     private final JWTUtil jwtUtil;
     private final ProfileRepository profileRepository;
+    private final StringRedisTemplate redisTemplate;
+
+    private Long getLikeCount(Long productId) {
+        String key = "like_count:PRODUCT:" + productId;
+        String value = redisTemplate.opsForValue().get(key);
+        return value != null ? Long.parseLong(value) : 0L;
+    }
+
+    private boolean isLikedByUser(Long userId, Long productId) {
+        if (userId == null) return false;
+        String key = "user:" + userId + ":likes";
+        String value = "PRODUCT_" + productId;
+        return Boolean.TRUE.equals(redisTemplate.opsForSet().isMember(key, value));
+    }
 
     @Transactional
-    public ResponseEntity<?> createProduct(ProductRegisterRequest productRegisterRequest, Object principal, String accessToken) {
-        String username = jwtUtil.getUsername(accessToken);
-
-        UserEntity userEntity = userRepository.findByUsername(username)
+    public ResponseEntity<?> createProduct(
+            ProductRegisterRequest productRegisterRequest,
+            MemberIdentity member,
+            String accessToken
+    ) {
+        UserEntity userEntity = userRepository.findById(member.id())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
 
         // 카테고리 저장
@@ -70,24 +88,14 @@ public class ProductService {
         productConditionRepository.save(productCondition);
 
         // 상품 이미지 저장
-        List<ProductImageEntity> productImageEntities = new ArrayList<>();
-        for (String imageUrl : productRegisterRequest.getImages()) {
-            ProductImageEntity productImageEntity = ProductImageEntity.builder()
-                    .imageURL(imageUrl)
-                    .build();
-
-            productImageEntities.add(productImageEntity);
-        }
+        List<ProductImageEntity> productImageEntities = productRegisterRequest.getImages().stream()
+                .map(imageUrl -> ProductImageEntity.builder().imageURL(imageUrl).build())
+                .toList();
 
         // 상품 태그 저장
-        List<ProductTagEntity> productTagEntities = new ArrayList<>();
-        for (String tag : productRegisterRequest.getTags()) {
-            ProductTagEntity productTagEntity = ProductTagEntity.builder()
-                    .tagName(tag)
-                    .build();
-
-            productTagEntities.add(productTagEntity);
-        }
+        List<ProductTagEntity> productTagEntities = productRegisterRequest.getTags().stream()
+                .map(tag -> ProductTagEntity.builder().tagName(tag).build())
+                .toList();
 
         // 상품 저장
         ProductEntity product = ProductEntity.builder()
@@ -106,16 +114,16 @@ public class ProductService {
         productRepository.save(product);
 
         // 이미지의 productEntity를 연결하고 저장
-        for (ProductImageEntity productImageEntity : productImageEntities) {
-            productImageEntity.setProductEntity(product);
-            productImageRepository.save(productImageEntity);
-        }
+        productImageEntities.forEach(image -> {
+            image.setProductEntity(product);
+            productImageRepository.save(image);
+        });
 
         // 태그의 productEntity를 연결하고 저장
-        for (ProductTagEntity productTagEntity : productTagEntities) {
-            productTagEntity.setProductEntity(product);
-            productTagRepository.save(productTagEntity);
-        }
+        productTagEntities.forEach(tag -> {
+            tag.setProductEntity(product);
+            productTagRepository.save(tag);
+        });
 
         // 상품 - 카테고리 관계 저장
         ProductCategoryRelationEntity relation = ProductCategoryRelationEntity.builder()
@@ -129,22 +137,20 @@ public class ProductService {
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "상품 등록 성공"));
     }
 
-    public List<ProductResponse> getRecentProducts(int page, int size) {
+
+    public List<ProductResponse> getRecentProducts(int page, int size, Long userId) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<ProductEntity> productPage = productRepository.findAllByIsActiveTrue(pageable);
-
         List<ProductEntity> products = productPage.getContent();
         List<Long> productIds = products.stream().map(ProductEntity::getId).toList();
 
-        List<ProductImageEntity> allImages = productImageRepository.findByProductEntityIdIn(productIds);
-        Map<Long, List<String>> imageMap = allImages.stream()
+        Map<Long, List<String>> imageMap = productImageRepository.findByProductEntityIdIn(productIds).stream()
                 .collect(Collectors.groupingBy(
                         img -> img.getProductEntity().getId(),
                         Collectors.mapping(ProductImageEntity::getImageURL, Collectors.toList())
                 ));
 
-        List<ProductTagEntity> allTags = productTagRepository.findByProductEntityIdIn(productIds);
-        Map<Long, List<String>> tagMap = allTags.stream()
+        Map<Long, List<String>> tagMap = productTagRepository.findByProductEntityIdIn(productIds).stream()
                 .collect(Collectors.groupingBy(
                         tag -> tag.getProductEntity().getId(),
                         Collectors.mapping(ProductTagEntity::getTagName, Collectors.toList())
@@ -160,11 +166,14 @@ public class ProductService {
                         .createdAt(product.getCreatedAt())
                         .imageUrls(imageMap.getOrDefault(product.getId(), List.of()))
                         .tags(tagMap.getOrDefault(product.getId(), List.of()))
+                        .likeCount(getLikeCount(product.getId()))
+                        .likedByMe(isLikedByUser(userId, product.getId()))
                         .build())
                 .toList();
     }
 
-    public ProductDetailResponse getProductDetail(Long productId) {
+
+    public ProductDetailResponse getProductDetail(Long productId, Long userId) {
         ProductEntity product = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
 
@@ -198,7 +207,8 @@ public class ProductService {
                 .name(product.getName())
                 .price(product.getPrice())
                 .includeShipping(product.isIncludeShipping())
-                .likeCount(product.getLikeCount())
+                .likeCount(getLikeCount(product.getId()))
+                .likedByMe(isLikedByUser(userId, product.getId()))
                 .createdAt(product.getCreatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
                 .imageUrls(imageUrls)
                 .tags(tags)
@@ -207,16 +217,13 @@ public class ProductService {
                 .category(categoryDescription)
                 .profileImages(profile.getProfileImage())
                 .sellerName(profile.getNickname())
-                .rating(4) // TODO: 리뷰 데이터로 연동 시 수정
-                .reviewCount(13) // TODO: 리뷰 개수 연동 시 수정
-                .condition(product.getProductConditionEntity()
-                                .getProductConditionCategory()
-                                .getDescription()
-                )
+                .rating(4)
+                .reviewCount(13)
+                .condition(product.getProductConditionEntity().getProductConditionCategory().getDescription())
                 .build();
     }
 
-    public List<ProductResponse> getPopularProducts(int page, int size) {
+    public List<ProductResponse> getPopularProducts(int page, int size, Long userId) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "likeCount"));
         Page<ProductEntity> productPage = productRepository.findAllByIsActiveTrue(pageable);
 
@@ -248,6 +255,8 @@ public class ProductService {
                             .isFree(product.isFree())
                             .includeShipping(product.isIncludeShipping())
                             .likeCount(product.getLikeCount())
+                            .likeCount(getLikeCount(product.getId()))
+                            .likedByMe(isLikedByUser(userId, product.getId()))
                             .createdAt(product.getCreatedAt())
                             .imageUrls(imageMap.getOrDefault(product.getId(), List.of()))
                             .tags(tagMap.getOrDefault(product.getId(), List.of()))
@@ -257,8 +266,7 @@ public class ProductService {
                 .toList();
     }
 
-    public List<ProductResponse> getCategoryProducts(int page, int size, int categoryCode, String topCategory) {
-
+    public List<ProductResponse> getCategoryProducts(int page, int size, int categoryCode, String topCategory, Long userId) {
         String codeStr = String.format("%06d", categoryCode);
         TopCategory top = TopCategory.fromGender(topCategory.toUpperCase());
         MiddleCategory middle = MiddleCategory.fromCode(codeStr.substring(0, 3));
@@ -296,6 +304,8 @@ public class ProductService {
                         .price(product.getPrice())
                         .isFree(product.isFree())
                         .includeShipping(product.isIncludeShipping())
+                        .likeCount(getLikeCount(product.getId()))
+                        .likedByMe(isLikedByUser(userId, product.getId()))
                         .likeCount(product.getLikeCount())
                         .createdAt(product.getCreatedAt())
                         .imageUrls(imageMap.getOrDefault(product.getId(), List.of()))
