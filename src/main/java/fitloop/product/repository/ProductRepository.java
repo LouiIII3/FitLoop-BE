@@ -49,4 +49,7 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
             @Param("bottom") BottomCategory bottom,
             Pageable pageable
     );
+
+    @Query("SELECT p.likeCount FROM ProductEntity p WHERE p.id = :productId")
+    Integer getLikeCountByProductId(@Param("productId") Long productId);
 }
