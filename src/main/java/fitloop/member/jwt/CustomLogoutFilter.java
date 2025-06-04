@@ -60,36 +60,20 @@ public class CustomLogoutFilter extends GenericFilterBean {
             }
         }
 
-        // Refresh 토큰 null 체크
-        if (refresh == null) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return;
+        if (refresh != null) {
+            try {
+                if (!jwtUtil.isExpired(refresh)) {
+                    String category = jwtUtil.getCategory(refresh);
+                    if ("refresh".equals(category)) {
+                        Boolean isExist = refreshRepository.existsByRefresh(refresh);
+                        if (isExist) {
+                            refreshRepository.deleteByRefresh(refresh);
+                        }
+                    }
+                }
+            } catch (JwtException ignored) {
+            }
         }
-
-        // Refresh 토큰 만료 체크
-        try {
-            jwtUtil.isExpired(refresh);
-        } catch (ExpiredJwtException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return;
-        }
-
-        // Refresh 토큰이 맞는지 카테고리 체크
-        String category = jwtUtil.getCategory(refresh);
-        if (!"refresh".equals(category)) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return;
-        }
-
-        // DB에 Refresh 토큰 존재 여부 확인
-        Boolean isExist = refreshRepository.existsByRefresh(refresh);
-        if (!isExist) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return;
-        }
-
-        // Refresh 토큰 DB에서 삭제
-        refreshRepository.deleteByRefresh(refresh);
 
         // Access 토큰 Redis에서 삭제
         String accessToken = request.getHeader("access");
@@ -108,7 +92,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
                         redisTemplate.delete(redisKey);
                     }
                 }
-            } catch (JwtException e) {
+            } catch (JwtException ignored) {
             }
         }
 
@@ -116,6 +100,8 @@ public class CustomLogoutFilter extends GenericFilterBean {
         Cookie cookie = new Cookie("refresh", null);
         cookie.setMaxAge(0);
         cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
         response.addCookie(cookie);
 
         response.setStatus(HttpServletResponse.SC_OK);
