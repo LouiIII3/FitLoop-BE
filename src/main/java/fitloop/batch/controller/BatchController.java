@@ -25,7 +25,7 @@ public class BatchController {
 
             JobExecution execution = jobLauncher.run(userLikeJob, jobParameters);
 
-            return "배치 실행됨 (상태: " + execution.getStatus() + ")";
+            return "유저별 좋아요 수 업데이트 실행됨";
         } catch (Exception e) {
             e.printStackTrace();
             return "실패: " + e.getMessage();
