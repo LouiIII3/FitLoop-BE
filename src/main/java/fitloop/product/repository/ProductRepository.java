@@ -52,4 +52,6 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
 
     @Query("SELECT p.likeCount FROM ProductEntity p WHERE p.id = :productId")
     Integer getLikeCountByProductId(@Param("productId") Long productId);
+
+    List<ProductEntity> findAllByIsActiveTrue();
 }
