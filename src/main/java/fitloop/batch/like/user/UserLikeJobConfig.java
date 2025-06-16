@@ -19,12 +19,13 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import java.util.Map;
 
+@RequiredArgsConstructor
 @Configuration
 @EnableBatchProcessing
-@RequiredArgsConstructor
 public class UserLikeJobConfig {
 
     private final StringRedisTemplate redisTemplate;
+    private final UserLikeWriter userLikeWriter;
 
     @Bean
     public Job userLikeJob(JobRepository jobRepository, Step userLikeStep) {
@@ -40,13 +41,12 @@ public class UserLikeJobConfig {
 
         ItemReader<Map.Entry<Long, String>> reader = new RedisUserLikesReader(redisTemplate);
         ItemProcessor<Map.Entry<Long, String>, LikeEntity> processor = new UserLikeProcessor();
-        ItemWriter<LikeEntity> writer = new UserLikeWriter();
 
         return new StepBuilder("userLikeStep", jobRepository)
                 .<Map.Entry<Long, String>, LikeEntity>chunk(100, transactionManager)
                 .reader(reader)
                 .processor(processor)
-                .writer(writer)
+                .writer(userLikeWriter)
                 .build();
     }
 }
