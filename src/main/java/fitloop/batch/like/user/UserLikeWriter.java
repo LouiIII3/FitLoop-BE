@@ -20,9 +20,14 @@ public class UserLikeWriter implements ItemWriter<LikeEntity> {
         for (LikeEntity like : items) {
             try {
                 em.persist(like);
+                System.out.println("저장됨: user=" + like.getUserId() +
+                        ", content=" + like.getContentId() +
+                        ", type=" + like.getContentType());
             } catch (Exception e) {
-                // UniqueConstraint 위반 시 무시
-                System.out.println("중복 무시: user=" + like.getUserId() + " content=" + like.getContentId());
+                System.err.println("SAVE 실패: user=" + like.getUserId() +
+                        ", content=" + like.getContentId() +
+                        ", type=" + like.getContentType());
+                e.printStackTrace();
             }
         }
     }
