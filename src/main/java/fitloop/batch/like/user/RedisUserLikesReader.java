@@ -16,9 +16,10 @@ public class RedisUserLikesReader implements ItemReader<Map.Entry<Long, String>>
 
     @Override
     public Map.Entry<Long, String> read() {
+        // 처음 한 번만 데이터 로딩
         if (iterator == null) {
             Set<String> keys = redisTemplate.keys("user:*:likes");
-            Map<Long, String> result = new HashMap<>();
+            List<Map.Entry<Long, String>> allEntries = new ArrayList<>();
 
             if (keys != null) {
                 for (String key : keys) {
@@ -28,14 +29,15 @@ public class RedisUserLikesReader implements ItemReader<Map.Entry<Long, String>>
                     Set<String> likedContents = redisTemplate.opsForSet().members(key);
                     if (likedContents != null) {
                         for (String content : likedContents) {
-                            result.put(userId, content); // e.g., "PRODUCT_50"
+                            allEntries.add(Map.entry(userId, content));
                         }
                     }
                 }
             }
 
-            iterator = result.entrySet().iterator();
+            iterator = allEntries.iterator();
         }
+
         return iterator.hasNext() ? iterator.next() : null;
     }
 }
