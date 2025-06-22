@@ -70,4 +70,12 @@ public class ProductController {
         Long userId = member != null ? member.id() : null;
         return productService.getProductDetail(id, userId);
     }
+
+    @GetMapping("/recent-viewed")
+    public ResponseEntity<List<ProductResponse>> getRecentViewedProducts(
+            @VerifiedMember MemberIdentity member
+    ) {
+        Long userId = member != null ? member.id() : null;
+        return ResponseEntity.ok(productService.getRecentViewedProducts(userId));
+    }
 }
