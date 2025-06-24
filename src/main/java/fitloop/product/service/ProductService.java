@@ -27,9 +27,7 @@ import fitloop.member.auth.MemberIdentity;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -177,6 +175,14 @@ public class ProductService {
         ProductEntity product = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
 
+        // 최근 본 상품 Redis에 저장
+        if (userId != null) {
+            String key = "user:" + userId + ":recent_viewed";
+            redisTemplate.opsForList().remove(key, 1, productId.toString()); // 중복 제거
+            redisTemplate.opsForList().leftPush(key, productId.toString()); // 앞에 추가
+            redisTemplate.opsForList().trim(key, 0, 19); // 최대 20개
+        }
+
         // 1. 이미지 URL 리스트
         List<String> imageUrls = productImageRepository.findAllByProductEntity(product)
                 .stream()
@@ -310,6 +316,51 @@ public class ProductService {
                         .createdAt(product.getCreatedAt())
                         .imageUrls(imageMap.getOrDefault(product.getId(), List.of()))
                         .tags(tagMap.getOrDefault(product.getId(), List.of()))
+                        .build())
+                .toList();
+    }
+
+    public List<ProductResponse> getRecentViewedProducts(Long userId) {
+        if (userId == null) return Collections.emptyList();
+
+        String key = "user:" + userId + ":recent_viewed";
+        List<String> idStrings = redisTemplate.opsForList().range(key, 0, 19);
+        if (idStrings == null || idStrings.isEmpty()) return Collections.emptyList();
+
+        List<Long> ids = idStrings.stream()
+                .map(Long::valueOf)
+                .toList();
+
+        List<ProductEntity> products = productRepository.findAllById(ids);
+        Map<Long, ProductEntity> productMap = products.stream()
+                .collect(Collectors.toMap(ProductEntity::getId, p -> p));
+
+        Map<Long, List<String>> imageMap = productImageRepository.findByProductEntityIdIn(ids).stream()
+                .collect(Collectors.groupingBy(
+                        img -> img.getProductEntity().getId(),
+                        Collectors.mapping(ProductImageEntity::getImageURL, Collectors.toList())
+                ));
+
+        Map<Long, List<String>> tagMap = productTagRepository.findByProductEntityIdIn(ids).stream()
+                .collect(Collectors.groupingBy(
+                        tag -> tag.getProductEntity().getId(),
+                        Collectors.mapping(ProductTagEntity::getTagName, Collectors.toList())
+                ));
+
+        return ids.stream()
+                .map(id -> productMap.get(id))
+                .filter(Objects::nonNull)
+                .map(product -> ProductResponse.builder()
+                        .id(product.getId())
+                        .name(product.getName())
+                        .price(product.getPrice())
+                        .isFree(product.isFree())
+                        .includeShipping(product.isIncludeShipping())
+                        .createdAt(product.getCreatedAt())
+                        .imageUrls(imageMap.getOrDefault(product.getId(), List.of()))
+                        .tags(tagMap.getOrDefault(product.getId(), List.of()))
+                        .likeCount(getLikeCount(product.getId()))
+                        .likedByMe(isLikedByUser(userId, product.getId()))
                         .build())
                 .toList();
     }
