@@ -15,7 +15,6 @@ import fitloop.product.entity.category.TopCategory;
 import fitloop.product.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -41,7 +40,6 @@ public class ProductService {
     private final ProductCategoryRelationRepository productCategoryRelationRepository;
     private final ProductImageRepository productImageRepository;
     private final ProductTagRepository productTagRepository;
-    private final JWTUtil jwtUtil;
     private final ProfileRepository profileRepository;
     private final StringRedisTemplate redisTemplate;
 
@@ -58,156 +56,131 @@ public class ProductService {
         return Boolean.TRUE.equals(redisTemplate.opsForSet().isMember(key, value));
     }
 
-    @Transactional
-    public ResponseEntity<?> createProduct(
-            ProductRegisterRequest productRegisterRequest,
-            MemberIdentity member,
-            String accessToken
-    ) {
-        UserEntity userEntity = userRepository.findById(member.id())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
-
-        // 카테고리 저장
-        CategoryEntity category = CategoryEntity.builder()
-                .topCategory(productRegisterRequest.getTopCategoryEnum())
-                .middleCategory(productRegisterRequest.getMiddleCategoryEnum())
-                .bottomCategory(productRegisterRequest.getBottomCategoryEnum())
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .build();
-        categoryRepository.save(category);
-
-        // 상품 상태 저장
-        ProductConditionEntity productCondition = ProductConditionEntity.builder()
-                .productConditionCategory(productRegisterRequest.getProductConditionEnum())
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .build();
-        productConditionRepository.save(productCondition);
-
-        // 상품 이미지 저장
-        List<ProductImageEntity> productImageEntities = productRegisterRequest.getImages().stream()
-                .map(imageUrl -> ProductImageEntity.builder().imageURL(imageUrl).build())
-                .toList();
-
-        // 상품 태그 저장
-        List<ProductTagEntity> productTagEntities = productRegisterRequest.getTags().stream()
-                .map(tag -> ProductTagEntity.builder().tagName(tag).build())
-                .toList();
-
-        // 상품 저장
-        ProductEntity product = ProductEntity.builder()
-                .userEntity(userEntity)
-                .name(productRegisterRequest.getProductName())
-                .price(productRegisterRequest.getPrice())
-                .isFree(productRegisterRequest.isFree())
-                .description(productRegisterRequest.getProductDescription())
-                .productConditionEntity(productCondition)
-                .isActive(true)
-                .isSold(false)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .includeShipping(productRegisterRequest.isInCludeShipping())
-                .build();
-        productRepository.save(product);
-
-        // 이미지의 productEntity를 연결하고 저장
-        productImageEntities.forEach(image -> {
-            image.setProductEntity(product);
-            productImageRepository.save(image);
-        });
-
-        // 태그의 productEntity를 연결하고 저장
-        productTagEntities.forEach(tag -> {
-            tag.setProductEntity(product);
-            productTagRepository.save(tag);
-        });
-
-        // 상품 - 카테고리 관계 저장
-        ProductCategoryRelationEntity relation = ProductCategoryRelationEntity.builder()
-                .productEntity(product)
-                .categoryEntity(category)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .build();
-        productCategoryRelationRepository.save(relation);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "상품 등록 성공"));
-    }
-
-
-    public List<ProductResponse> getRecentProducts(int page, int size, Long userId) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<ProductEntity> productPage = productRepository.findAllByIsActiveTrue(pageable);
-        List<ProductEntity> products = productPage.getContent();
-        List<Long> productIds = products.stream().map(ProductEntity::getId).toList();
-
-        Map<Long, List<String>> imageMap = productImageRepository.findByProductEntityIdIn(productIds).stream()
+    private Map<Long, List<String>> getImageMap(List<Long> productIds) {
+        return productImageRepository.findByProductEntityIdIn(productIds).stream()
                 .collect(Collectors.groupingBy(
                         img -> img.getProductEntity().getId(),
                         Collectors.mapping(ProductImageEntity::getImageURL, Collectors.toList())
                 ));
+    }
 
-        Map<Long, List<String>> tagMap = productTagRepository.findByProductEntityIdIn(productIds).stream()
+    private Map<Long, List<String>> getTagMap(List<Long> productIds) {
+        return productTagRepository.findByProductEntityIdIn(productIds).stream()
                 .collect(Collectors.groupingBy(
                         tag -> tag.getProductEntity().getId(),
                         Collectors.mapping(ProductTagEntity::getTagName, Collectors.toList())
                 ));
-
-        return products.stream()
-                .map(product -> ProductResponse.builder()
-                        .id(product.getId())
-                        .name(product.getName())
-                        .price(product.getPrice())
-                        .isFree(product.isFree())
-                        .includeShipping(product.isIncludeShipping())
-                        .createdAt(product.getCreatedAt())
-                        .imageUrls(imageMap.getOrDefault(product.getId(), List.of()))
-                        .tags(tagMap.getOrDefault(product.getId(), List.of()))
-                        .likeCount(getLikeCount(product.getId()))
-                        .likedByMe(isLikedByUser(userId, product.getId()))
-                        .build())
-                .toList();
     }
 
+    private ProductResponse toProductResponse(ProductEntity product, Long userId, List<String> images, List<String> tags, Integer rank) {
+        ProductResponse.ProductResponseBuilder builder = ProductResponse.builder()
+                .id(product.getId())
+                .name(product.getName())
+                .price(product.getPrice())
+                .isFree(product.isFree())
+                .includeShipping(product.isIncludeShipping())
+                .createdAt(product.getCreatedAt())
+                .imageUrls(images)
+                .tags(tags)
+                .likeCount(getLikeCount(product.getId()))
+                .likedByMe(isLikedByUser(userId, product.getId()));
+
+        if (rank != null) builder.rank(rank);
+        return builder.build();
+    }
+
+    @Transactional
+    public ResponseEntity<?> createProduct(ProductRegisterRequest request, MemberIdentity member, String accessToken) {
+        UserEntity user = userRepository.findById(member.id())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+
+        CategoryEntity category = categoryRepository.save(CategoryEntity.builder()
+                .topCategory(request.getTopCategoryEnum())
+                .middleCategory(request.getMiddleCategoryEnum())
+                .bottomCategory(request.getBottomCategoryEnum())
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build());
+
+        ProductConditionEntity condition = productConditionRepository.save(ProductConditionEntity.builder()
+                .productConditionCategory(request.getProductConditionEnum())
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build());
+
+        ProductEntity product = productRepository.save(ProductEntity.builder()
+                .userEntity(user)
+                .name(request.getProductName())
+                .price(request.getPrice())
+                .isFree(request.isFree())
+                .description(request.getProductDescription())
+                .productConditionEntity(condition)
+                .isActive(true)
+                .isSold(false)
+                .includeShipping(request.isInCludeShipping())
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build());
+
+        request.getImages().forEach(url -> productImageRepository.save(ProductImageEntity.builder()
+                .productEntity(product)
+                .imageURL(url)
+                .build()));
+
+        request.getTags().forEach(tag -> productTagRepository.save(ProductTagEntity.builder()
+                .productEntity(product)
+                .tagName(tag)
+                .build()));
+
+        productCategoryRelationRepository.save(ProductCategoryRelationEntity.builder()
+                .productEntity(product)
+                .categoryEntity(category)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build());
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "상품 등록 성공"));
+    }
+
+    public List<ProductResponse> getRecentProducts(int page, int size, Long userId) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        List<ProductEntity> products = productRepository.findAllByIsActiveTrue(pageable).getContent();
+        List<Long> ids = products.stream().map(ProductEntity::getId).toList();
+        Map<Long, List<String>> images = getImageMap(ids);
+        Map<Long, List<String>> tags = getTagMap(ids);
+
+        return products.stream()
+                .map(p -> toProductResponse(p, userId, images.getOrDefault(p.getId(), List.of()), tags.getOrDefault(p.getId(), List.of()), null))
+                .toList();
+    }
 
     public ProductDetailResponse getProductDetail(Long productId, Long userId) {
         ProductEntity product = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
 
-        // 최근 본 상품 Redis에 저장
         if (userId != null) {
             String key = "user:" + userId + ":recent_viewed";
-            redisTemplate.opsForList().remove(key, 1, productId.toString()); // 중복 제거
-            redisTemplate.opsForList().leftPush(key, productId.toString()); // 앞에 추가
-            redisTemplate.opsForList().trim(key, 0, 19); // 최대 20개
+            redisTemplate.opsForList().remove(key, 1, productId.toString());
+            redisTemplate.opsForList().leftPush(key, productId.toString());
+            redisTemplate.opsForList().trim(key, 0, 19);
         }
 
-        // 1. 이미지 URL 리스트
-        List<String> imageUrls = productImageRepository.findAllByProductEntity(product)
-                .stream()
-                .map(ProductImageEntity::getImageURL)
-                .toList();
+        List<String> imageUrls = productImageRepository.findAllByProductEntity(product).stream()
+                .map(ProductImageEntity::getImageURL).toList();
+        List<String> tags = productTagRepository.findAllByProductEntity(product).stream()
+                .map(ProductTagEntity::getTagName).toList();
 
-        // 2. 태그 리스트
-        List<String> tags = productTagRepository.findAllByProductEntity(product)
-                .stream()
-                .map(ProductTagEntity::getTagName)
-                .toList();
-
-        // 3. 카테고리 정보 (Top > Middle > Bottom)
         ProductCategoryRelationEntity relation = productCategoryRelationRepository.findByProductEntity(product)
                 .orElseThrow(() -> new IllegalArgumentException("카테고리 연관 정보를 찾을 수 없습니다."));
         CategoryEntity category = relation.getCategoryEntity();
-        String categoryDescription = category.getTopCategory().getDescription() + " > "
-                + category.getMiddleCategory().getDescription() + " > "
-                + category.getBottomCategory().getDescription();
+        String categoryDescription = String.join(" > ",
+                category.getTopCategory().getDescription(),
+                category.getMiddleCategory().getDescription(),
+                category.getBottomCategory().getDescription());
 
-        // 4. 판매자 닉네임
         ProfileEntity profile = profileRepository.findByUserId(product.getUserEntity())
                 .orElseThrow(() -> new IllegalArgumentException("프로필 정보가 없습니다."));
 
-        // 5. 최종 응답 빌드
         return ProductDetailResponse.builder()
                 .id(product.getId())
                 .name(product.getName())
@@ -231,44 +204,16 @@ public class ProductService {
 
     public List<ProductResponse> getPopularProducts(int page, int size, Long userId) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "likeCount"));
-        Page<ProductEntity> productPage = productRepository.findAllByIsActiveTrue(pageable);
+        List<ProductEntity> products = productRepository.findAllByIsActiveTrue(pageable).getContent();
+        List<Long> ids = products.stream().map(ProductEntity::getId).toList();
+        Map<Long, List<String>> images = getImageMap(ids);
+        Map<Long, List<String>> tags = getTagMap(ids);
 
-        List<ProductEntity> products = productPage.getContent();
-        List<Long> productIds = products.stream().map(ProductEntity::getId).toList();
-
-        List<ProductImageEntity> allImages = productImageRepository.findByProductEntityIdIn(productIds);
-        Map<Long, List<String>> imageMap = allImages.stream()
-                .collect(Collectors.groupingBy(
-                        img -> img.getProductEntity().getId(),
-                        Collectors.mapping(ProductImageEntity::getImageURL, Collectors.toList())
-                ));
-
-        List<ProductTagEntity> allTags = productTagRepository.findByProductEntityIdIn(productIds);
-        Map<Long, List<String>> tagMap = allTags.stream()
-                .collect(Collectors.groupingBy(
-                        tag -> tag.getProductEntity().getId(),
-                        Collectors.mapping(ProductTagEntity::getTagName, Collectors.toList())
-                ));
-
-        // 순위 매기기 (페이지 내에서 1부터 시작)
         return IntStream.range(0, products.size())
-                .mapToObj(i -> {
-                    ProductEntity product = products.get(i);
-                    return ProductResponse.builder()
-                            .id(product.getId())
-                            .name(product.getName())
-                            .price(product.getPrice())
-                            .isFree(product.isFree())
-                            .includeShipping(product.isIncludeShipping())
-                            .likeCount(product.getLikeCount())
-                            .likeCount(getLikeCount(product.getId()))
-                            .likedByMe(isLikedByUser(userId, product.getId()))
-                            .createdAt(product.getCreatedAt())
-                            .imageUrls(imageMap.getOrDefault(product.getId(), List.of()))
-                            .tags(tagMap.getOrDefault(product.getId(), List.of()))
-                            .rank(page * size + i + 1)
-                            .build();
-                })
+                .mapToObj(i -> toProductResponse(products.get(i), userId,
+                        images.getOrDefault(products.get(i).getId(), List.of()),
+                        tags.getOrDefault(products.get(i).getId(), List.of()),
+                        page * size + i + 1))
                 .toList();
     }
 
@@ -277,91 +222,37 @@ public class ProductService {
         TopCategory top = TopCategory.fromGender(topCategory.toUpperCase());
         MiddleCategory middle = MiddleCategory.fromCode(codeStr.substring(0, 3));
         BottomCategory bottom = BottomCategory.fromCode(codeStr.substring(3));
-
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "likeCount"));
 
-        List<ProductEntity> products;
-        if ("000".equals(bottom.getCode())) {
-            products = productRepository.findByTopAndMiddle(top, middle, pageable).getContent();
-        } else {
-            products = productRepository.findByTopMiddleBottom(top, middle, bottom, pageable).getContent();
-        }
+        List<ProductEntity> products = ("000".equals(bottom.getCode()) ?
+                productRepository.findByTopAndMiddle(top, middle, pageable) :
+                productRepository.findByTopMiddleBottom(top, middle, bottom, pageable)).getContent();
 
-        List<Long> productIds = products.stream()
-                .map(ProductEntity::getId)
-                .toList();
-
-        Map<Long, List<String>> imageMap = productImageRepository.findByProductEntityIdIn(productIds).stream()
-                .collect(Collectors.groupingBy(
-                        img -> img.getProductEntity().getId(),
-                        Collectors.mapping(ProductImageEntity::getImageURL, Collectors.toList())
-                ));
-
-        Map<Long, List<String>> tagMap = productTagRepository.findByProductEntityIdIn(productIds).stream()
-                .collect(Collectors.groupingBy(
-                        tag -> tag.getProductEntity().getId(),
-                        Collectors.mapping(ProductTagEntity::getTagName, Collectors.toList())
-                ));
+        List<Long> ids = products.stream().map(ProductEntity::getId).toList();
+        Map<Long, List<String>> images = getImageMap(ids);
+        Map<Long, List<String>> tags = getTagMap(ids);
 
         return products.stream()
-                .map(product -> ProductResponse.builder()
-                        .id(product.getId())
-                        .name(product.getName())
-                        .price(product.getPrice())
-                        .isFree(product.isFree())
-                        .includeShipping(product.isIncludeShipping())
-                        .likeCount(getLikeCount(product.getId()))
-                        .likedByMe(isLikedByUser(userId, product.getId()))
-                        .likeCount(product.getLikeCount())
-                        .createdAt(product.getCreatedAt())
-                        .imageUrls(imageMap.getOrDefault(product.getId(), List.of()))
-                        .tags(tagMap.getOrDefault(product.getId(), List.of()))
-                        .build())
+                .map(p -> toProductResponse(p, userId, images.getOrDefault(p.getId(), List.of()), tags.getOrDefault(p.getId(), List.of()), null))
                 .toList();
     }
 
     public List<ProductResponse> getRecentViewedProducts(Long userId) {
-        if (userId == null) return Collections.emptyList();
-
+        if (userId == null) return List.of();
         String key = "user:" + userId + ":recent_viewed";
         List<String> idStrings = redisTemplate.opsForList().range(key, 0, 19);
-        if (idStrings == null || idStrings.isEmpty()) return Collections.emptyList();
+        if (idStrings == null || idStrings.isEmpty()) return List.of();
 
-        List<Long> ids = idStrings.stream()
-                .map(Long::valueOf)
-                .toList();
-
-        List<ProductEntity> products = productRepository.findAllById(ids);
-        Map<Long, ProductEntity> productMap = products.stream()
+        List<Long> ids = idStrings.stream().map(Long::valueOf).toList();
+        Map<Long, ProductEntity> productMap = productRepository.findAllById(ids).stream()
                 .collect(Collectors.toMap(ProductEntity::getId, p -> p));
-
-        Map<Long, List<String>> imageMap = productImageRepository.findByProductEntityIdIn(ids).stream()
-                .collect(Collectors.groupingBy(
-                        img -> img.getProductEntity().getId(),
-                        Collectors.mapping(ProductImageEntity::getImageURL, Collectors.toList())
-                ));
-
-        Map<Long, List<String>> tagMap = productTagRepository.findByProductEntityIdIn(ids).stream()
-                .collect(Collectors.groupingBy(
-                        tag -> tag.getProductEntity().getId(),
-                        Collectors.mapping(ProductTagEntity::getTagName, Collectors.toList())
-                ));
+        Map<Long, List<String>> images = getImageMap(ids);
+        Map<Long, List<String>> tags = getTagMap(ids);
 
         return ids.stream()
-                .map(id -> productMap.get(id))
+                .map(productMap::get)
                 .filter(Objects::nonNull)
-                .map(product -> ProductResponse.builder()
-                        .id(product.getId())
-                        .name(product.getName())
-                        .price(product.getPrice())
-                        .isFree(product.isFree())
-                        .includeShipping(product.isIncludeShipping())
-                        .createdAt(product.getCreatedAt())
-                        .imageUrls(imageMap.getOrDefault(product.getId(), List.of()))
-                        .tags(tagMap.getOrDefault(product.getId(), List.of()))
-                        .likeCount(getLikeCount(product.getId()))
-                        .likedByMe(isLikedByUser(userId, product.getId()))
-                        .build())
+                .map(p -> toProductResponse(p, userId, images.getOrDefault(p.getId(), List.of()), tags.getOrDefault(p.getId(), List.of()), null))
                 .toList();
     }
 }
