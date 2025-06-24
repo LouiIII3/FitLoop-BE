@@ -166,7 +166,7 @@ public class SecurityConfig {
                 "/api/v1/google", "/api/v1/login", "/api/v1/register",
                 "/api/v1/reissue", "/api/v1/auth/", "/api/v1/user",
                 "/api/v1/admin", "/api/v1/users/profile", "/api/v1/products/register",
-                "/api/v1/upload", "/api/v1/products", "/api/v1/batch"
+                "/api/v1/upload", "/api/v1/products", "/api/v1/batch", "/api/v1/cart"
                 ).stream().anyMatch(requestURI::startsWith);
     }
 }
