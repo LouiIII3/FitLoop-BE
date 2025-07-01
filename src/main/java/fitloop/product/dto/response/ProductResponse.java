@@ -21,4 +21,5 @@ public class ProductResponse {
     private List<String> tags;
     private Long likeCount;
     private Integer rank;
+    private Boolean likedByMe;
 }
