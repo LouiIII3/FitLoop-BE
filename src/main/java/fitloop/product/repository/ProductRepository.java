@@ -54,4 +54,18 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
     Integer getLikeCountByProductId(@Param("productId") Long productId);
 
     List<ProductEntity> findAllByIsActiveTrue();
+    @Query("""
+    SELECT p FROM ProductEntity p
+    WHERE p.isActive = true
+      AND (
+        LOWER(p.name) LIKE LOWER(CONCAT('%', :query, '%'))
+        OR LOWER(p.description) LIKE LOWER(CONCAT('%', :query, '%'))
+        OR EXISTS (
+            SELECT 1 FROM ProductTagEntity t
+            WHERE t.productEntity.id = p.id
+              AND LOWER(t.tagName) LIKE LOWER(CONCAT('%', :query, '%'))
+        )
+      )
+""")
+    List<ProductEntity> searchByQuery(@Param("query") String query);
 }
