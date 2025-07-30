@@ -1,16 +1,16 @@
 
 -- 사용자
-INSERT INTO user (birth_date, personal_info, created_at, updated_at, email, full_name, password, phone_number, provider, provider_id, username, membership, role) VALUES
-  ('2000-01-31', 1, '2025-04-05 07:00:30', '2025-04-05 07:00:30', 'test1@example.com', 'sunghui1', '$2a$10$r7jHY0.XZ0rpcKDYyS7vD.EIW7oh3y0qf4cJ2uJmznWD/PXDpEv.u', NULL, NULL, NULL, 'testuser1', 'SEED', 'MEMBER'),
-  ('2000-01-31', 1, '2025-04-05 07:00:30', '2025-04-05 07:00:30', 'test2@example.com', 'sunghui2', '$2a$10$r7jHY0.XZ0rpcKDYyS7vD.EIW7oh3y0qf4cJ2uJmznWD/PXDpEv.u', NULL, NULL, NULL, 'testuser2', 'SEED', 'MEMBER'),
-  ('2000-01-31', 1, '2025-04-05 07:00:30', '2025-04-05 07:00:30', 'test3@example.com', 'sunghui3', '$2a$10$r7jHY0.XZ0rpcKDYyS7vD.EIW7oh3y0qf4cJ2uJmznWD/PXDpEv.u', NULL, NULL, NULL, 'testuser3', 'SEED', 'MEMBER'),
-  ('2000-01-31', 1, '2025-04-05 07:00:30', '2025-04-05 07:00:30', 'test4@example.com', 'sunghui4', '$2a$10$r7jHY0.XZ0rpcKDYyS7vD.EIW7oh3y0qf4cJ2uJmznWD/PXDpEv.u', NULL, NULL, NULL, 'testuser4', 'SEED', 'MEMBER'),
-  ('2000-01-31', 1, '2025-04-05 07:00:30', '2025-04-05 07:00:30', 'test5@example.com', 'sunghui5', '$2a$10$r7jHY0.XZ0rpcKDYyS7vD.EIW7oh3y0qf4cJ2uJmznWD/PXDpEv.u', NULL, NULL, NULL, 'testuser5', 'SEED', 'MEMBER'),
-  ('2000-01-31', 1, '2025-04-05 07:00:30', '2025-04-05 07:00:30', 'test6@example.com', 'jieun1', '$2a$10$r7jHY0.XZ0rpcKDYyS7vD.EIW7oh3y0qf4cJ2uJmznWD/PXDpEv.u', NULL, NULL, NULL, 'testuser6', 'SEED', 'MEMBER'),
-  ('2000-01-31', 1, '2025-04-05 07:00:30', '2025-04-05 07:00:30', 'test7@example.com', 'jieun2', '$2a$10$r7jHY0.XZ0rpcKDYyS7vD.EIW7oh3y0qf4cJ2uJmznWD/PXDpEv.u', NULL, NULL, NULL, 'testuser7', 'SEED', 'MEMBER'),
-  ('2000-01-31', 1, '2025-04-05 07:00:30', '2025-04-05 07:00:30', 'test8@example.com', 'jieun3', '$2a$10$r7jHY0.XZ0rpcKDYyS7vD.EIW7oh3y0qf4cJ2uJmznWD/PXDpEv.u', NULL, NULL, NULL, 'testuser8', 'SEED', 'MEMBER'),
-  ('2000-01-31', 1, '2025-04-05 07:00:30', '2025-04-05 07:00:30', 'test9@example.com', 'jieun4', '$2a$10$r7jHY0.XZ0rpcKDYyS7vD.EIW7oh3y0qf4cJ2uJmznWD/PXDpEv.u', NULL, NULL, NULL, 'testuser9', 'SEED', 'MEMBER'),
-  ('2000-01-31', 1, '2025-04-05 07:00:30', '2025-04-05 07:00:30', 'test10@example.com', 'jieun5', '$2a$10$r7jHY0.XZ0rpcKDYyS7vD.EIW7oh3y0qf4cJ2uJmznWD/PXDpEv.u', NULL, NULL, NULL, 'testuser10', 'SEED', 'MEMBER');
+INSERT INTO `user` (birth_date, personal_info, created_at, updated_at, email, full_name, password, phone_number, provider, provider_id, username, membership, role) VALUES
+  ('2000-01-31', 1, '2025-04-05 07:00:30', '2025-04-05 07:00:30', 'test1@example.com', 'sunghui1', '$2a$10$r7jHY0.XZ0rpcKDYyS7vD.EIW7oh3y0qf4cJ2uJmznWD/PXDpEv.u', '010-1111-1111', NULL, NULL, 'testuser1', 'SEED', 'MEMBER'),
+  ('2000-01-31', 2, '2025-04-05 07:00:30', '2025-04-05 07:00:30', 'test2@example.com', 'sunghui2', '$2a$10$r7jHY0.XZ0rpcKDYyS7vD.EIW7oh3y0qf4cJ2uJmznWD/PXDpEv.u', '010-2222-2222', NULL, NULL, 'testuser2', 'SEED', 'MEMBER'),
+  ('2000-01-31', 3, '2025-04-05 07:00:30', '2025-04-05 07:00:30', 'test3@example.com', 'sunghui3', '$2a$10$r7jHY0.XZ0rpcKDYyS7vD.EIW7oh3y0qf4cJ2uJmznWD/PXDpEv.u', '010-3333-3333', NULL, NULL, 'testuser3', 'SEED', 'MEMBER'),
+  ('2000-01-31', 4, '2025-04-05 07:00:30', '2025-04-05 07:00:30', 'test4@example.com', 'sunghui4', '$2a$10$r7jHY0.XZ0rpcKDYyS7vD.EIW7oh3y0qf4cJ2uJmznWD/PXDpEv.u', '010-4444-4444', NULL, NULL, 'testuser4', 'SEED', 'MEMBER'),
+  ('2000-01-31', 5, '2025-04-05 07:00:30', '2025-04-05 07:00:30', 'test5@example.com', 'sunghui5', '$2a$10$r7jHY0.XZ0rpcKDYyS7vD.EIW7oh3y0qf4cJ2uJmznWD/PXDpEv.u', '010-5555-5555', NULL, NULL, 'testuser5', 'SEED', 'MEMBER'),
+  ('2000-01-31', 6, '2025-04-05 07:00:30', '2025-04-05 07:00:30', 'test6@example.com', 'jieun1', '$2a$10$r7jHY0.XZ0rpcKDYyS7vD.EIW7oh3y0qf4cJ2uJmznWD/PXDpEv.u', '010-6666-6666', NULL, NULL, 'testuser6', 'SEED', 'MEMBER'),
+  ('2000-01-31', 7, '2025-04-05 07:00:30', '2025-04-05 07:00:30', 'test7@example.com', 'jieun2', '$2a$10$r7jHY0.XZ0rpcKDYyS7vD.EIW7oh3y0qf4cJ2uJmznWD/PXDpEv.u', '010-7777-7777', NULL, NULL, 'testuser7', 'SEED', 'MEMBER'),
+  ('2000-01-31', 8, '2025-04-05 07:00:30', '2025-04-05 07:00:30', 'test8@example.com', 'jieun3', '$2a$10$r7jHY0.XZ0rpcKDYyS7vD.EIW7oh3y0qf4cJ2uJmznWD/PXDpEv.u', '010-8888-8888', NULL, NULL, 'testuser8', 'SEED', 'MEMBER'),
+  ('2000-01-31', 9, '2025-04-05 07:00:30', '2025-04-05 07:00:30', 'test9@example.com', 'jieun4', '$2a$10$r7jHY0.XZ0rpcKDYyS7vD.EIW7oh3y0qf4cJ2uJmznWD/PXDpEv.u', '010-9999-9999', NULL, NULL, 'testuser9', 'SEED', 'MEMBER'),
+  ('2000-01-31', 10, '2025-04-05 07:00:30', '2025-04-05 07:00:30', 'test10@example.com', 'jieun5', '$2a$10$r7jHY0.XZ0rpcKDYyS7vD.EIW7oh3y0qf4cJ2uJmznWD/PXDpEv.u', '010-1234-1234', NULL, NULL, 'testuser10', 'SEED', 'MEMBER');
 
 -- 카테고리
 INSERT INTO category (created_at, id, updated_at, bottom_category, middle_category, top_category)
@@ -309,6 +309,7 @@ INSERT INTO profile (
     weight,
     profile_image,
     address,
+    detail_address,
     postal_code,
     bank_name,
     account_number,
@@ -316,13 +317,13 @@ INSERT INTO profile (
     created_at,
     updated_at
 ) VALUES
-      (1, '빵돌이', 'MALE', '20-29', 175.0, 70.0, 'https://picsum.photos/id/129/350/450', '서울특별시 강남구', '06000', '신한은행', '110-123-456789', 0.0, NOW(), NOW()),
-      (2, '집콕대왕', 'MALE', '20-29', 175.0, 70.0, 'https://picsum.photos/id/63/350/450', '서울특별시 강남구', '06000', '신한은행', '110-123-456789', 0.0, NOW(), NOW()),
-      (3, '밥도둑냥이', 'MALE', '20-29', 175.0, 70.0, 'https://picsum.photos/id/106/350/450', '서울특별시 강남구', '06000', '신한은행', '110-123-456789', 0.0, NOW(), NOW()),
-      (4, '멍때리미', 'MALE', '20-29', 175.0, 70.0, 'https://picsum.photos/id/130/350/450', '서울특별시 강남구', '06000', '신한은행', '110-123-456789', 0.0, NOW(), NOW()),
-      (5, '라면 요정', 'MALE', '20-29', 175.0, 70.0, 'https://picsum.photos/id/163/350/450', '서울특별시 강남구', '06000', '신한은행', '110-123-456789', 0.0, NOW(), NOW()),
-      (6, '집콕 대왕', 'FEMALE', '20-29', 165.0, 55.0, 'https://picsum.photos/id/177/350/450', '서울특별시 마포구', '04000', '국민은행', '123-45-678901', 0.0, NOW(), NOW()),
-      (7, '낮잠 천재', 'FEMALE', '20-29', 165.0, 55.0, 'https://picsum.photos/id/250/350/450', '서울특별시 마포구', '04000', '국민은행', '123-45-678901', 0.0, NOW(), NOW()),
-      (8, '간식 탐험가', 'FEMALE', '20-29', 165.0, 55.0, 'https://picsum.photos/id/305/350/450', '서울특별시 마포구', '04000', '국민은행', '123-45-678901', 0.0, NOW(), NOW()),
-      (9, '새벽 감성러', 'FEMALE', '20-29', 165.0, 55.0, 'https://picsum.photos/id/342/350/450', '서울특별시 마포구', '04000', '국민은행', '123-45-678901', 0.0, NOW(), NOW()),
-      (10, '넷플릭서', 'FEMALE', '20-29', 165.0, 55.0, 'https://picsum.photos/id/365/350/450', '서울특별시 마포구', '04000', '국민은행', '123-45-678901', 0.0, NOW(), NOW());
+      (1, '빵돌이', 'MALE', '20-29', 175.0, 70.0, 'https://picsum.photos/id/129/350/450', '서울특별시 강남구', '123동 1234호', '06000', '신한은행', '11023456789', 0.0, NOW(), NOW()),
+      (2, '집콕대왕', 'MALE', '20-29', 175.0, 70.0, 'https://picsum.photos/id/63/350/450', '서울특별시 강남구', '123동 1234호', '06000', '신한은행', '110123456789', 0.0, NOW(), NOW()),
+      (3, '밥도둑냥이', 'MALE', '20-29', 175.0, 70.0, 'https://picsum.photos/id/106/350/450', '서울특별시 강남구','123동 1234호', '06000', '신한은행', '110123456789', 0.0, NOW(), NOW()),
+      (4, '멍때리미', 'MALE', '20-29', 175.0, 70.0, 'https://picsum.photos/id/130/350/450', '서울특별시 강남구','123동 1234호', '06000', '신한은행', '110123456789', 0.0, NOW(), NOW()),
+      (5, '라면 요정', 'MALE', '20-29', 175.0, 70.0, 'https://picsum.photos/id/163/350/450', '서울특별시 강남구','123동 1234호', '06000', '신한은행', '110123456789', 0.0, NOW(), NOW()),
+      (6, '집콕 대왕', 'FEMALE', '20-29', 165.0, 55.0, 'https://picsum.photos/id/177/350/450', '서울특별시 마포구','123동 1234호', '04000', '국민은행', '12345678901', 0.0, NOW(), NOW()),
+      (7, '낮잠 천재', 'FEMALE', '20-29', 165.0, 55.0, 'https://picsum.photos/id/250/350/450', '서울특별시 마포구','123동 1234호', '04000', '국민은행', '12345678901', 0.0, NOW(), NOW()),
+      (8, '간식 탐험가', 'FEMALE', '20-29', 165.0, 55.0, 'https://picsum.photos/id/305/350/450', '서울특별시 마포구','123동 1234호', '04000', '국민은행', '12345678901', 0.0, NOW(), NOW()),
+      (9, '새벽 감성러', 'FEMALE', '20-29', 165.0, 55.0, 'https://picsum.photos/id/342/350/450', '서울특별시 마포구','123동 1234호', '04000', '국민은행', '12345678901', 0.0, NOW(), NOW()),
+      (10, '넷플릭서', 'FEMALE', '20-29', 165.0, 55.0, 'https://picsum.photos/id/365/350/450', '서울특별시 마포구','123동 1234호', '04000', '국민은행', '12345678901', 0.0, NOW(), NOW());
