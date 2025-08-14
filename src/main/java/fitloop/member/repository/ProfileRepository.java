@@ -8,4 +8,5 @@ import java.util.Optional;
 
 public interface ProfileRepository extends JpaRepository<ProfileEntity, Long> {
     Optional<ProfileEntity> findByUserId(UserEntity userEntity);
+    void deleteByUserId(UserEntity user);
 }
