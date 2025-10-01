@@ -2,10 +2,14 @@ package fitloop.payment.controller;
 
 import fitloop.member.auth.VerifiedMember;
 import fitloop.member.auth.MemberIdentity;
+import fitloop.payment.entity.Wallet;
 import fitloop.payment.service.WalletService;
+import fitloop.payment.service.PaymentVerificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -13,30 +17,49 @@ import org.springframework.web.bind.annotation.*;
 public class WalletController {
 
     private final WalletService walletService;
+    private final PaymentVerificationService paymentVerificationService;
 
-    // 지갑 충전
-    @PostMapping("/charge")
-    public ResponseEntity<?> charge(
-            @RequestParam Long amount,
+    // 결제 검증 + 충전
+    @PostMapping("/charge/verify")
+    public ResponseEntity<?> verifyAndCharge(
+            @RequestParam String impUid,
             @VerifiedMember MemberIdentity member
     ) {
-        return walletService.charge(member.id(), amount);
+        try {
+            // 1. 포트원 서버에서 결제 내역 검증
+            Long paidAmount = paymentVerificationService.verifyPayment(impUid);
+
+            // 2. 지갑 충전
+            Wallet wallet = walletService.charge(member.id(), paidAmount);
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "충전 성공",
+                    "balance", wallet.getBalance(),
+                    "paidAmount", paidAmount
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
     }
 
-    // 지갑 차감
     @PostMapping("/deduct")
     public ResponseEntity<?> deduct(
             @RequestParam Long amount,
             @VerifiedMember MemberIdentity member
     ) {
-        return walletService.deduct(member.id(), amount);
+        try {
+            Wallet wallet = walletService.deduct(member.id(), amount);
+            return ResponseEntity.ok(Map.of("balance", wallet.getBalance()));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
     }
 
-    // 잔액 조회
     @GetMapping("/balance")
     public ResponseEntity<?> getBalance(
             @VerifiedMember MemberIdentity member
     ) {
-        return walletService.getBalance(member.id());
+        Long balance = walletService.getBalance(member.id());
+        return ResponseEntity.ok(Map.of("balance", balance));
     }
 }
