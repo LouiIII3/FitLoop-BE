@@ -3,6 +3,8 @@ package fitloop.member.service;
 import fitloop.member.dto.request.RegisterRequest;
 import fitloop.member.entity.UserEntity;
 import fitloop.member.repository.UserRepository;
+import fitloop.payment.entity.Wallet;
+import fitloop.payment.repository.WalletRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -10,10 +12,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class RegisterService {
     private final UserRepository userRepository;
+    private final WalletRepository walletRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public RegisterService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
+    public RegisterService(UserRepository userRepository,
+                           WalletRepository walletRepository,
+                           BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.userRepository = userRepository;
+        this.walletRepository = walletRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
@@ -24,12 +30,10 @@ public class RegisterService {
         String email = registerRequest.getEmail();
         String name = registerRequest.getName();
 
-        // 사용자 이름 또는 이메일이 이미 존재하는지 확인
         if (userRepository.existsByUsername(username) || userRepository.existsByEmail(email)) {
             throw new IllegalArgumentException("이미 존재하는 사용자입니다.");
         }
 
-        // 새 사용자 생성
         UserEntity user = UserEntity.builder()
                 .username(username)
                 .password(bCryptPasswordEncoder.encode(password))
@@ -38,6 +42,14 @@ public class RegisterService {
                 .name(name)
                 .build();
 
-        return userRepository.save(user);
+        UserEntity savedUser = userRepository.save(user);
+
+        Wallet wallet = Wallet.builder()
+                .userId(savedUser.getId())
+                .balance(0L)
+                .build();
+        walletRepository.save(wallet);
+
+        return savedUser;
     }
 }
