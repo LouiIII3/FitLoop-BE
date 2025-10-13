@@ -1,8 +1,11 @@
 package fitloop.payment.service;
 
 import fitloop.payment.entity.Wallet;
+import fitloop.payment.entity.WalletTransaction;
 import fitloop.payment.entity.Withdrawal;
+import fitloop.payment.entity.type.TransactionType;
 import fitloop.payment.repository.WalletRepository;
+import fitloop.payment.repository.WalletTransactionRepository;
 import fitloop.payment.repository.WithdrawalRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +18,7 @@ public class WithdrawalService {
 
     private final WithdrawalRepository withdrawalRepository;
     private final WalletRepository walletRepository;
+    private final WalletTransactionRepository walletTransactionRepository;
 
     @Transactional
     public ResponseEntity<?> requestWithdrawal(Long sellerId, Long amount, String bankName, String accountNumber) {
@@ -34,6 +38,15 @@ public class WithdrawalService {
                 .status("REQUESTED")
                 .build();
         withdrawalRepository.save(withdrawal);
+
+        WalletTransaction withdrawalTx = WalletTransaction.builder()
+                .userId(sellerId)
+                .amount(amount)
+                .type(TransactionType.WITHDRAWAL)
+                .method("BANK_TRANSFER")
+                .description("출금 요청")
+                .build();
+        walletTransactionRepository.save(withdrawalTx);
 
         return ResponseEntity.ok(withdrawal);
     }
