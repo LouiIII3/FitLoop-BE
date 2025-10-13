@@ -1,7 +1,10 @@
 package fitloop.payment.service;
 
 import fitloop.payment.entity.Wallet;
+import fitloop.payment.entity.WalletTransaction;
+import fitloop.payment.entity.type.TransactionType;
 import fitloop.payment.repository.WalletRepository;
+import fitloop.payment.repository.WalletTransactionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class WalletService {
 
     private final WalletRepository walletRepository;
+    private final WalletTransactionRepository walletTransactionRepository;
 
     @Transactional
     public Wallet charge(Long userId, Long amount) {
@@ -20,6 +24,16 @@ public class WalletService {
                         .balance(0L)
                         .build()));
         wallet.setBalance(wallet.getBalance() + amount);
+
+        WalletTransaction transaction = WalletTransaction.builder()
+                .userId(userId)
+                .amount(amount)
+                .type(TransactionType.CHARGE)
+                .method("KAKAOPAY") // 또는 외부 결제 수단
+                .description("카카오페이 충전")
+                .build();
+        walletTransactionRepository.save(transaction);
+
         return wallet;
     }
 
