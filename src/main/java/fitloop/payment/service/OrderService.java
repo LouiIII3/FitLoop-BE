@@ -2,8 +2,11 @@ package fitloop.payment.service;
 
 import fitloop.payment.entity.Order;
 import fitloop.payment.entity.Wallet;
+import fitloop.payment.entity.WalletTransaction;
+import fitloop.payment.entity.type.TransactionType;
 import fitloop.payment.repository.OrderRepository;
 import fitloop.payment.repository.WalletRepository;
+import fitloop.payment.repository.WalletTransactionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -17,6 +20,7 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final WalletRepository walletRepository;
+    private final WalletTransactionRepository walletTransactionRepository;
 
     @Transactional
     public ResponseEntity<?> createOrder(Long buyerId, Long sellerId, Long productId, Long amount) {
@@ -35,6 +39,18 @@ public class OrderService {
                 .status("ORDERED")
                 .build();
         orderRepository.save(order);
+
+        WalletTransaction buyerTx = WalletTransaction.builder()
+                .userId(buyerId)
+                .counterpartyId(sellerId)
+                .orderId(order.getId())
+                .productId(productId)
+                .amount(amount)
+                .type(TransactionType.PURCHASE)
+                .method("WALLET")
+                .description("상품 구매 결제")
+                .build();
+        walletTransactionRepository.save(buyerTx);
 
         return ResponseEntity.ok(order);
     }
