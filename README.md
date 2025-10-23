@@ -145,6 +145,26 @@ FITLOOP 백엔드는 Spring Boot & Spring Security 기반으로 구축되었으�
 - **커스텀 에러 코드 사용**
     - 에러 유형을 명확히 정의하고, 일관된 JSON 형식으로 응답하여 프론트엔드의 오류 처리 용이성 향상
 
+### 🧩 Kafka 적용
+
+대량의 사용자 이벤트를 비동기적으로 처리하기 위해 Kafka를 도입하였습니다. <br>
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/f567283d-44e0-46a4-9e91-86b0674d4442" alt="FITLOOP Kafka">
+</p>
+
+* **사용 목적**: 좋아요 이벤트 처리, 향후 알림/조회수/활동 로그 처리 확장 대비
+* **적용 범위**: Like 기능 전반 (이벤트 발행/소비)
+* **Kafka 토픽 구성**:
+
+  * `user-like-events`: 유저가 좋아요한 상품 ID 기록용
+  * `product-like-events`: 특정 상품의 좋아요 수 집계용
+* **설정 값**:
+
+  * 파티션: 3개 (병렬 처리)
+  * 복제: 2개 (데이터 내구성 확보)
+
+Kafka를 중심으로 `Producer (서비스)` → `Topic` → `Consumer (Redis 반영)` → `Spring Batch` → `DB 저장`까지의 구조를 구성함으로써, **확장성 · 내결함성 · 비동기성**을 동시에 확보하였습니다.
 
 ---
 
@@ -172,6 +192,9 @@ FITLOOP 백엔드는 Spring Boot & Spring Security 기반으로 구축되었으�
 <br>
 <br>
 
+### ⚙️ ERD 설계
+- [ERD 설계 보기](https://www.erdcloud.com/d/Ey2588ifii9X4k5A9)
+
 ## 📚 API 명세 (Swagger 기반)
 
 FITLOOP 프로젝트는 Swagger(OpenAPI 3.0)를 활용하여 REST API 명세를 자동화하였으며, SwaggerHub를 통해 팀원들과 API 문서를 공유하고 관리하고 있습니다.
@@ -179,7 +202,6 @@ FITLOOP 프로젝트는 Swagger(OpenAPI 3.0)를 활용하여 REST API 명세를 
 ### 🔗 API 문서 보기
 
 - [SwaggerHub 문서 보기](https://app.swaggerhub.com/apis/none-f10-fb1/fitloop-api/1.0.0)
-- 
 - 또는 `fitloop-api.yaml` 파일을 Postman 또는 Swagger Editor에서 불러와 사용 가능
 
 ---
@@ -316,5 +338,65 @@ FITLOOP 프로젝트는 Swagger(OpenAPI 3.0)를 활용하여 REST API 명세를 
 | 03.11 | UserDetails ID 이슈 해결, 개인정보 입력 UI 보완 |
 | 03.12 | S3 광고 이미지 연동 컨트롤러 설계, 마이페이지 구성 |
 | 03.13 | URL 명칭 통일, 회원가입 UX 개선, 사용자 통계 테이블 설계 |
+| 03.14 | 상품 등록 URL 정의, 사용자 통계 테이블 설계 및 ERD 수정, 수정/삭제 버튼 피그마 반영 논의 |
+| 03.24 | 카테고리 태그 설정 방식 정리, 최근 본 상품 Redis 저장 구조 논의, 제품 조건 enum 지정 |
+| 03.25 | personalInfo undefined 이슈 해결, 쿠키 vs localStorage 비교, 이미지 업로드 구조 및 작업 분배 |
+| 03.26 | 상품 조건 관리 방식 정리, 빈 값 처리 로직 정의, 좋아요 기능 책임 분리 및 트리거 논의 |
+| 03.28 | SSR 대응을 위한 Next.js fetch 패턴 정리, 썸네일 처리 방식 통일, mypage API URL 통합 |
+| 03.29 | 카테고리 및 상품 상태 관리 방식 정리, 무한스크롤 UX 보완, redis 최근 본 상품 길이 제한 |
+
+</details>
+
+
+<details>
+  <summary>📅 2024년 4월 개발 히스토리 보기</summary>
+
+| 날짜 | 작업 내용 |
+|------|-----------|
+| 04.01 | 메인페이지 탭별 API 연동 방식 정리, useEffect 초기 요청 흐름 점검 |
+| 04.06 | 마이페이지 설계, 개인정보 수정 구조 재설계, 최근 본 상품 로직 연결 방식 정리 |
+| 04.21 | 카테고리 및 정렬 모달 toggle 방식 논의, 선택 필터 유지 방식 정리 |
+| 04.22 | 필터 API 연동 방식 정리, 상품 정렬 상태 유지 로직 정의 |
+| 04.23 | 정렬 및 필터 클릭 구조 설계, UI 리팩토링 방향 논의 |
+| 04.27 | 썸네일 리팩토링, 드래그 스크롤 버그 수정, 최근 본 상품 뷰 개선 |
+| 04.29 | 인기상품 가로 스크롤 구조 설계, 드래그 중 클릭 방지 처리 논의 |
+| 04.30 | 메인페이지 통합 스크롤 컨테이너 구조 적용, 상태 업데이트 흐름 점검 |
+
+</details>
+
+<details>
+  <summary>📅 2024년 5월 개발 히스토리 보기</summary>
+
+| 날짜 | 작업 내용 |
+|------|-----------|
+| 05.01 | 인기상품 가로 스크롤 드래그 최적화 및 클릭 구분 처리 |
+| 05.05 | 상품 상세페이지 요구사항 반영, 텍스트 설명 toggle 구조 설계 |
+| 05.06 | 중고 상품 상태 안내 toggle 정리, 탄소 절감 정보 toggle 로직 구현 |
+| 05.09 | 좋아요 실시간 반영 구조 설계, Redis 연동 구조 확인 |
+| 05.10 | 좋아요 상태 값 Zustand 관리 전환, 실시간 값 반영 방식 논의 |
+| 05.11 | Zustand로 like 상태 연동, Redis 반영 로직 점검 |
+| 05.12 | Redis에 좋아요 상태 저장 방식 정의, Kafka 이벤트 발행 구조 설계 |
+| 05.13 | Kafka 도입에 따른 Like 흐름 정리, 비동기 반영 방식 논의 |
+| 05.14 | 배치 도입 방향 논의, Partition 및 Consumer 그룹 분리 설계 |
+| 05.15 | Spring Batch 적용 구조 정리, Kafka 이벤트 별 Topic 분리 논의 |
+| 05.22 | draw.io 흐름도 스타일 조정, 사용자 중심 화살표 흐름 반영 |
+| 05.23 | 좋아요 누른 뒤 상태 유지 전략 점검, revalidate 방식 적용 |
+| 05.24 | ProductCard 드래그 클릭 구분 최적화, MainPage 인터랙션 정리 |
+| 05.25 | Kafka 이벤트 처리 흐름 정리, Redis 상태 캐싱 구조 확정 |
+| 05.26 | Spring Batch로 Redis 데이터를 DB에 주기적 반영 구조 완료 |
+| 05.28 | 마이페이지 최근 본 상품 데이터 구조 정리, SSR 대응 상태 관리 |
+
+</details>
+
+<details>
+  <summary>📅 2024년 6월 개발 히스토리 보기</summary>
+
+| 날짜 | 작업 내용 |
+|------|-----------|
+| 06.04 | MainPage lazyload 적용, Kakao Map 초기화 방식 변경 논의 |
+| 06.05 | Banner carousel 연결 구조 개선, 인기상품 목록 흐름 정리 |
+| 06.16 | Kafka 파티션 구조 검토, Redis key 구조 통일 논의 |
+| 06.17 | 좋아요 흐름 도식화 및 Redis-Kafka-DB 전이 구조 정리 |
+| 06.22 | 회의록 문서 통합 및 히스토리 관리 기준 확정 |
 
 </details>

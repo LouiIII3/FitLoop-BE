@@ -1,11 +1,13 @@
 package fitloop.product.repository;
 
+import fitloop.member.entity.UserEntity;
 import fitloop.product.entity.ProductEntity;
 
 import fitloop.product.entity.category.BottomCategory;
 import fitloop.product.entity.category.MiddleCategory;
 import fitloop.product.entity.category.TopCategory;
 import io.lettuce.core.dynamic.annotation.Param;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -49,4 +51,24 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
             @Param("bottom") BottomCategory bottom,
             Pageable pageable
     );
+
+    @Query("SELECT p.likeCount FROM ProductEntity p WHERE p.id = :productId")
+    Integer getLikeCountByProductId(@Param("productId") Long productId);
+
+    List<ProductEntity> findAllByIsActiveTrue();
+    @Query("""
+    SELECT p FROM ProductEntity p
+    WHERE p.isActive = true
+      AND (
+        LOWER(p.name) LIKE LOWER(CONCAT('%', :query, '%'))
+        OR LOWER(p.description) LIKE LOWER(CONCAT('%', :query, '%'))
+        OR EXISTS (
+            SELECT 1 FROM ProductTagEntity t
+            WHERE t.productEntity.id = p.id
+              AND LOWER(t.tagName) LIKE LOWER(CONCAT('%', :query, '%'))
+        )
+      )
+""")
+    List<ProductEntity> searchByQuery(@Param("query") String query);
+    List<ProductEntity> findAllByUserEntity(UserEntity user);
 }

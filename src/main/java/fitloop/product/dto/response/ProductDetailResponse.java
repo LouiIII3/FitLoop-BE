@@ -24,5 +24,6 @@ public class ProductDetailResponse {
     private String profileImages;
     private int reviewCount;
     private String condition;
+    private Boolean likedByMe;
 }
 
