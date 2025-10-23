@@ -10,6 +10,11 @@ import fitloop.member.jwt.JWTUtil;
 import fitloop.member.repository.ProfileRepository;
 import fitloop.member.repository.RefreshRepository;
 import fitloop.member.repository.UserRepository;
+import fitloop.product.entity.ProductEntity;
+import fitloop.product.repository.ProductCategoryRelationRepository;
+import fitloop.product.repository.ProductImageRepository;
+import fitloop.product.repository.ProductRepository;
+import fitloop.product.repository.ProductTagRepository;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,6 +29,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -34,8 +40,12 @@ public class UserService {
     private final UserRepository userRepository;
     private final ProfileRepository profileRepository;
     private final RefreshRepository refreshRepository;
+    private final ProductRepository productRepository;
     private final RedisTemplate<String, String> redisTemplate;
     private final JWTUtil jwtUtil;
+    private final ProductTagRepository productTagRepository;
+    private final ProductImageRepository productImageRepository;
+    private final ProductCategoryRelationRepository productCategoryRelationRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public ResponseEntity<?> getUserInfo(Object principal) {
@@ -203,5 +213,52 @@ public class UserService {
             }
         }
         return null;
+    }
+
+    @Transactional
+    public ResponseEntity<?> deleteAccount(Object principal, HttpServletResponse response) {
+        if (!(principal instanceof CustomUserDetails userDetails)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "인증되지 않은 사용자입니다."));
+        }
+
+        String username = userDetails.getUsername();
+
+        Optional<UserEntity> optionalUser = userRepository.findByUsername(username);
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "유저를 찾을 수 없습니다."));
+        }
+
+        UserEntity user = optionalUser.get();
+
+        List<ProductEntity> products = productRepository.findAllByUserEntity(user);
+
+        for (ProductEntity product : products) {
+            productCategoryRelationRepository.deleteAllByProductEntity(product);
+            productTagRepository.deleteAllByProductEntity(product);
+            productImageRepository.deleteAllByProductEntity(product);
+            productRepository.delete(product);
+        }
+
+        profileRepository.deleteByUserId(user);
+
+        userRepository.delete(user);
+
+        redisTemplate.delete("auth:access:" + username);
+
+        refreshRepository.deleteByUsername(username);
+
+        invalidateCookie(response, "access");
+        invalidateCookie(response, "refresh");
+
+        return ResponseEntity.noContent().build();
+    }
+
+    private void invalidateCookie(HttpServletResponse response, String name) {
+        Cookie cookie = new Cookie(name, null);
+        cookie.setMaxAge(0);
+        cookie.setPath("/");
+        response.addCookie(cookie);
     }
 }
