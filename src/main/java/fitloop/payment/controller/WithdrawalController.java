@@ -14,7 +14,6 @@ public class WithdrawalController {
 
     private final WithdrawalService withdrawalService;
 
-    // 출금 요청 (sellerId = 로그인 유저 ID)
     @PostMapping
     public ResponseEntity<?> requestWithdrawal(
             @RequestParam Long amount,
@@ -25,7 +24,6 @@ public class WithdrawalController {
         return withdrawalService.requestWithdrawal(member.id(), amount, bankName, accountNumber);
     }
 
-    // 출금 완료 처리 (관리자 권한이거나, 단순히 시뮬레이션용)
     @PostMapping("/{withdrawalId}/complete")
     public ResponseEntity<?> completeWithdrawal(
             @PathVariable Long withdrawalId,
