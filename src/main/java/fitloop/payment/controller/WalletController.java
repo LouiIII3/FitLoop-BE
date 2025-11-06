@@ -19,17 +19,14 @@ public class WalletController {
     private final WalletService walletService;
     private final PaymentVerificationService paymentVerificationService;
 
-    // 결제 검증 + 충전
     @PostMapping("/charge/verify")
     public ResponseEntity<?> verifyAndCharge(
             @RequestParam String impUid,
             @VerifiedMember MemberIdentity member
     ) {
         try {
-            // 1. 포트원 서버에서 결제 내역 검증
             Long paidAmount = paymentVerificationService.verifyPayment(impUid);
 
-            // 2. 지갑 충전
             Wallet wallet = walletService.charge(member.id(), paidAmount);
 
             return ResponseEntity.ok(Map.of(
