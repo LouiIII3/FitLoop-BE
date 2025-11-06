@@ -3,7 +3,7 @@ package fitloop.payment.controller;
 import fitloop.member.auth.VerifiedMember;
 import fitloop.member.auth.MemberIdentity;
 import fitloop.payment.service.OrderService;
-import fitloop.payment.service.dto.CreateOrderRequest;
+import fitloop.payment.dto.CreateOrderRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
