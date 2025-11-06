@@ -22,7 +22,6 @@ import org.springframework.util.StreamUtils;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 
@@ -43,13 +42,15 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     }
 
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
+            throws AuthenticationException {
         try {
             String messageBody = StreamUtils.copyToString(request.getInputStream(), StandardCharsets.UTF_8);
             LoginRequest loginRequest = objectMapper.readValue(messageBody, LoginRequest.class);
-            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                    loginRequest.getUsername(), loginRequest.getPassword()
-            );
+
+            UsernamePasswordAuthenticationToken authToken =
+                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword());
+
             return authenticationManager.authenticate(authToken);
         } catch (IOException e) {
             try {
@@ -60,7 +61,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             return null;
         }
     }
-
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
@@ -77,6 +77,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         Optional<UserEntity> userEntityOptional = userRepository.findByUsername(username);
         boolean personalInfo = userEntityOptional.map(user -> Boolean.TRUE.equals(user.getPersonalInfo())).orElse(false);
+        String roleName = userEntityOptional.map(user -> user.getRole().name()).orElse("MEMBER");
+        String fullName = userEntityOptional.map(UserEntity::getName).orElse(username);
 
         response.addCookie(userService.createAccessCookie(accessToken));
         response.addCookie(userService.createRefreshCookie(refreshToken));
@@ -86,7 +88,9 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         response.getWriter().write(objectMapper.writeValueAsString(Map.of(
                 "message", "로그인이 성공하였습니다.",
-                "personal_info", personalInfo
+                "personal_info", personalInfo,
+                "role", roleName,
+                "fullName", fullName
         )));
     }
 
