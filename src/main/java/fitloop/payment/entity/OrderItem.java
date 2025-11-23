@@ -8,27 +8,27 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "orders")
+@Table(name = "order_items", indexes = {
+        @Index(name = "idx_order_items_order", columnList = "orderId")
+})
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor @Builder
-public class Order {
+public class OrderItem {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long buyerId;
-    private Long sellerId;
+    @Column(nullable = false)
+    private Long orderId;
 
-    @Column(nullable = false) private Long subtotal;
-    @Column(nullable = false) private Long shippingFee;
-    @Column(nullable = false) private Long platformFee;
-    @Column(nullable = false) private Long couponDiscount;
-    @Column(nullable = false) private Long tierDiscount;
-    @Column(nullable = false) private Long otherDiscount;
-    @Column(nullable = false) private Long grandTotal;
+    @Column(nullable = false)
+    private Long productId;
 
-    private String status;
-    private String trackingNumber;
+    @Column(nullable = false) private Long unitPrice;
+    @Column(nullable = false) private Integer quantity;
+    @Column(nullable = false) private Long itemSubtotal;
+
+    @Column(nullable = false) private Long itemDiscount;
 
     @CreationTimestamp @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
