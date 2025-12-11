@@ -117,7 +117,7 @@ public class SecurityConfig {
                                 "/api/v1/withdrawals/**",
                                 "/api/v1/coupon/register"
                         ).authenticated()
-                        .requestMatchers("/api/v1/user").hasAuthority("MEMBER")
+                        .requestMatchers("/api/v1/user", "/api/v1/coupon/register").hasAuthority("MEMBER")
                         .requestMatchers("/api/v1/admin").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
