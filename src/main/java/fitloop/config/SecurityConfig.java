@@ -114,7 +114,8 @@ public class SecurityConfig {
                                 "/api/v1/users",
                                 "/api/v1/orders/**",
                                 "/api/v1/wallets/**",
-                                "/api/v1/withdrawals/**"
+                                "/api/v1/withdrawals/**",
+                                "/api/v1/coupon/register"
                         ).authenticated()
                         .requestMatchers("/api/v1/user").hasAuthority("MEMBER")
                         .requestMatchers("/api/v1/admin").hasRole("ADMIN")
@@ -178,7 +179,7 @@ public class SecurityConfig {
                 "/api/v1/admin", "/api/v1/users/profile", "/api/v1/products/register",
                 "/api/v1/upload", "/api/v1/products", "/api/v1/batch", "/api/v1/cart",
                 "/api/v1/search", "/api/v1/profile/account","/api/v1/users",
-                "/api/v1/orders", "/api/v1/wallets", "/api/v1/withdrawals"
+                "/api/v1/orders", "/api/v1/wallets", "/api/v1/withdrawals", "/api/v1/coupon/register"
                 ).stream().anyMatch(requestURI::startsWith);
     }
 }
