@@ -27,7 +27,7 @@ public class CouponService {
         // 관리자 여부 확인
         String role = jwtUtil.getRole(accessToken);
 
-        if (!"ADMIN".equals(role)) {
+        if (!"MEMBER".equals(role)) {
             return ResponseEntity.status(403).body(member.username()+"은 권한이 없습니다.");
         }
 
