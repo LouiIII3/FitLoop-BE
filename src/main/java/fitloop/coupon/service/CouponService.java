@@ -24,7 +24,7 @@ public class CouponService {
     private final JWTUtil jwtUtil;
 
     public ResponseEntity<?> createCoupon(CouponRegisterRequest request, MemberIdentity member, String accessToken) {
-        // 관리자 여부 확인
+        // role 확인
         String role = jwtUtil.getRole(accessToken);
 
         if (!"MEMBER".equals(role)) {
