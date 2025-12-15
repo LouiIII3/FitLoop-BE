@@ -39,6 +39,19 @@ public class CouponService {
             return ResponseEntity.badRequest().body("유효기간 시작일은 종료일보다 이전이어야 합니다.");
         }
 
+        // 중복 쿠폰 검사
+        boolean isDuplicate = couponRepository.existsBySellerIdAndNameAndValidFromAndValidTo(
+                member.id(),
+                request.getCouponName(),
+                validFrom,
+                validTo
+        );
+
+        if (isDuplicate) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body("이미 동일한 조건의 쿠폰이 존재합니다.");
+        }
+
         // 사용자 조회
         String username = member.username();
         Optional<UserEntity> optionalUser = userRepository.findByUsername(username);
