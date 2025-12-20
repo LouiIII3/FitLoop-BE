@@ -26,4 +26,13 @@ public class CouponController {
     ) {
         return couponService.createCoupon(couponRegisterRequest, member, accessToken);
     }
+
+    @Login
+    @GetMapping("/created")
+    public ResponseEntity<?> getMyCreatedCoupons(
+            @VerifiedMember MemberIdentity member,
+            @RequestHeader("access") String accessToken
+    ) {
+        return couponService.getMyCreatedCoupons(member, accessToken);
+    }
 }
