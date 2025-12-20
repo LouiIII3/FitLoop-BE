@@ -1,6 +1,7 @@
 package fitloop.coupon.service;
 
 import fitloop.coupon.dto.CouponRegisterRequest;
+import fitloop.coupon.dto.CreatedCouponResponse;
 import fitloop.coupon.entity.CouponIssue;
 import fitloop.coupon.repository.CouponRepository;
 import fitloop.member.auth.MemberIdentity;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -75,5 +77,23 @@ public class CouponService {
         couponRepository.save(coupon);
 
         return ResponseEntity.ok("쿠폰 생성 완료");
+    }
+
+
+    public ResponseEntity<?> getMyCreatedCoupons(MemberIdentity member, String accessToken) {
+
+        String role = jwtUtil.getRole(accessToken);
+        if (!"MEMBER".equals(role)) {
+            return ResponseEntity.status(403)
+                    .body(member.username() + "은 권한이 없습니다.");
+        }
+
+        List<CreatedCouponResponse> result =
+                couponRepository.findBySellerIdOrderByCreatedAtDesc(member.id())
+                        .stream()
+                        .map(CreatedCouponResponse::from)
+                        .toList();
+
+        return ResponseEntity.ok(result);
     }
 }
