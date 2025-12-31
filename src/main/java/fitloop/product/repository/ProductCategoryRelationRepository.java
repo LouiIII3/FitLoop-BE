@@ -8,4 +8,5 @@ import java.util.Optional;
 
 public interface ProductCategoryRelationRepository extends JpaRepository<ProductCategoryRelationEntity, Long> {
     Optional<ProductCategoryRelationEntity> findByProductEntity(ProductEntity product);
+    void deleteAllByProductEntity(ProductEntity product);
 }

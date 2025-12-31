@@ -3,6 +3,7 @@ package fitloop.member.controller;
 import fitloop.member.dto.request.ProfileRequest;
 import fitloop.member.dto.response.ProfileResponse;
 import fitloop.member.service.UserService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -26,5 +27,11 @@ public class UserController {
             @AuthenticationPrincipal Object principal,
             @RequestHeader("access") String accessToken) {
         return userService.createProfile(profileRequest, principal, accessToken);
+    }
+
+    @DeleteMapping("/users")
+    public ResponseEntity<?> deleteMyAccount(@AuthenticationPrincipal Object principal,
+                                             HttpServletResponse response) {
+        return userService.deleteAccount(principal, response);
     }
 }

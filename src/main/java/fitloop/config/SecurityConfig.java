@@ -106,9 +106,19 @@ public class SecurityConfig {
                                 "/webjars/**", "/api/v1/send-code", "/api/v1/verify-code", "/api/v1/search"
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/products/*").permitAll()
-                        .requestMatchers("/api/v1/products/register", "/api/v1/upload", "/api/v1/users/profile",
-                                "/api/v1/settings/account/personal").authenticated()
-                        .requestMatchers("/api/v1/user").hasAuthority("MEMBER")
+                        .requestMatchers(
+                                "/api/v1/products/register",
+                                "/api/v1/upload",
+                                "/api/v1/users/profile",
+                                "/api/v1/profile/account",
+                                "/api/v1/users",
+                                "/api/v1/orders/**",
+                                "/api/v1/wallets/**",
+                                "/api/v1/withdrawals/**",
+                                "/api/v1/coupon/register",
+                                "/api/v1/settings/account/personal"
+                        ).authenticated()
+                        .requestMatchers("/api/v1/user", "/api/v1/coupon/register").hasAuthority("MEMBER")
                         .requestMatchers("/api/v1/admin").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
@@ -169,7 +179,9 @@ public class SecurityConfig {
                 "/api/v1/reissue", "/api/v1/auth/", "/api/v1/user",
                 "/api/v1/admin", "/api/v1/users/profile", "/api/v1/products/register",
                 "/api/v1/upload", "/api/v1/products", "/api/v1/batch", "/api/v1/cart",
-                "/api/v1/send-code", "/api/v1/verify-code", "/api/v1/search"
+                "/api/v1/search", "/api/v1/profile/account","/api/v1/users",
+                "/api/v1/orders", "/api/v1/wallets", "/api/v1/withdrawals", "/api/v1/coupon/register",
+                        "/api/v1/send-code", "/api/v1/verify-code"
                 ).stream().anyMatch(requestURI::startsWith);
     }
 }

@@ -57,6 +57,9 @@ public class ProfileEntity {
     @Column(length = 255)
     private String accountNumber;
 
+    @Column(length = 255)
+    private String depositor;
+
     @Column(nullable = false)
     private Double ecoPoints;
 
