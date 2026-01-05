@@ -45,6 +45,9 @@ public class ProfileEntity {
     @Column(columnDefinition = "TEXT")
     private String address;
 
+    @Column(columnDefinition = "TEXT")
+    private String detailAddress;
+
     @Column(length = 255)
     private String postalCode;
 
