@@ -1,12 +1,16 @@
 package fitloop.payment.service;
 
 import fitloop.payment.entity.Order;
+import fitloop.payment.entity.OrderItem;
 import fitloop.payment.entity.Wallet;
 import fitloop.payment.entity.WalletTransaction;
 import fitloop.payment.entity.type.TransactionType;
+import fitloop.payment.repository.OrderItemRepository;
 import fitloop.payment.repository.OrderRepository;
 import fitloop.payment.repository.WalletRepository;
 import fitloop.payment.repository.WalletTransactionRepository;
+import fitloop.payment.dto.CreateOrderRequest;
+import fitloop.payment.service.util.OrderPricing;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -19,40 +23,41 @@ import java.util.Optional;
 public class OrderService {
 
     private final OrderRepository orderRepository;
+    private final OrderItemRepository orderItemRepository;
     private final WalletRepository walletRepository;
     private final WalletTransactionRepository walletTransactionRepository;
 
     @Transactional
-    public ResponseEntity<?> createOrder(Long buyerId, Long sellerId, Long productId, Long amount) {
-        Wallet buyerWallet = walletRepository.findByUserId(buyerId)
+    public ResponseEntity<?> createOrder(CreateOrderRequest req) {
+        var priced = OrderPricing.price(req);
+        Order header = orderRepository.save(priced.orderHeader);
+
+        for (OrderItem oi : priced.orderItems) {
+            oi.setOrderId(header.getId());
+            orderItemRepository.save(oi);
+        }
+
+        Wallet buyerWallet = walletRepository.findByUserId(req.getBuyerId())
                 .orElseThrow(() -> new IllegalArgumentException("지갑을 찾을 수 없습니다."));
-        if (buyerWallet.getBalance() < amount) {
+        if (buyerWallet.getBalance() < header.getGrandTotal()) {
             return ResponseEntity.badRequest().body("잔액이 부족합니다.");
         }
-        buyerWallet.setBalance(buyerWallet.getBalance() - amount);
-
-        Order order = Order.builder()
-                .buyerId(buyerId)
-                .sellerId(sellerId)
-                .productId(productId)
-                .amount(amount)
-                .status("ORDERED")
-                .build();
-        orderRepository.save(order);
+        buyerWallet.setBalance(buyerWallet.getBalance() - header.getGrandTotal());
+        walletRepository.save(buyerWallet);
 
         WalletTransaction buyerTx = WalletTransaction.builder()
-                .userId(buyerId)
-                .counterpartyId(sellerId)
-                .orderId(order.getId())
-                .productId(productId)
-                .amount(amount)
+                .userId(req.getBuyerId())
+                .counterpartyId(req.getSellerId())
+                .orderId(header.getId())
+                .productId(null)
+                .amount(header.getGrandTotal())
                 .type(TransactionType.PURCHASE)
                 .method("WALLET")
-                .description("상품 구매 결제")
+                .description("다상품 구매 결제")
                 .build();
         walletTransactionRepository.save(buyerTx);
 
-        return ResponseEntity.ok(order);
+        return ResponseEntity.ok(header);
     }
 
     @Transactional
@@ -93,7 +98,8 @@ public class OrderService {
 
         Wallet sellerWallet = walletRepository.findByUserId(order.getSellerId())
                 .orElseThrow(() -> new IllegalArgumentException("판매자 지갑을 찾을 수 없습니다."));
-        sellerWallet.setBalance(sellerWallet.getBalance() + order.getAmount());
+        sellerWallet.setBalance(sellerWallet.getBalance() + order.getGrandTotal());
+        walletRepository.save(sellerWallet);
 
         return ResponseEntity.ok(order);
     }
