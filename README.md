@@ -1,149 +1,177 @@
-# 👗 FITLOOP - Backend
+# 👗 FITLOOP - 순환형 패션 커뮤니티 플랫폼
+
+<br />
+
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/b6bb06a6-a87c-4507-8a58-7600ed47b422" alt="FITLOOP Logo">
+  <img src="https://github.com/user-attachments/assets/f3189ecb-934e-4aa0-bdac-cdb00acacc49" width="900" alt="FITLOOP Banner"/>
 </p>
 
-**FITLOOP**은 사용자가 옷을 사고팔 수 있는 패션 거래 플랫폼입니다.  
-사용자는 마켓에서 옷을 사고팔 수 있으며, 룩북을 통해 스타일을 공유하고, 챌린지에 참여해 트렌디한 패션 문화를 즐길 수 있습니다.
+<br />
 
----
-<br>
+**FITLOOP**은 패션 아이템을 사고팔고, 룩북과 챌린지를 통해 스타일을 공유하는  
+**순환형 패션 커뮤니티 플랫폼**입니다.
 
-## 🛠️ 프로젝트 개요
-
-- **프로젝트명**: FITLOOP
-- **목적**: 사용자들이 패션 아이템을 사고팔고, 룩북과 챌린지를 통해 스타일을 공유하는 패션 커뮤니티 플랫폼 제공
-
-<br>
-
-### ✨ 주요 기능
-
-- **🛒 마켓플레이스**: 사용자가 직접 패션 아이템을 등록 및 판매
-- **📸 룩북**: 사진 업로드를 통한 스타일 공유
-- **🎥 챌린지**: 태그 + 영상 기반의 패션 챌린지 참여 기능
-- **⭐ 즐겨찾기(북마크)**: 관심 있는 상품 및 룩북을 저장하여 쉽게 다시 보기
-- **🔍 필터링**: 스타일, 브랜드, 가격대 등의 조건으로 검색 가능
-
----
-<br>
-
-## 💻 개발 환경
-<table> 
-    <thead> 
-        <tr>
-            <th>카테고리</th> 
-            <th>라이브러리</th> 
-            <th>설명</th> 
-        </tr> 
-    </thead> 
-    <tbody> 
-        <tr> 
-            <td rowspan="2">
-                <strong>프레임워크</strong>
-            </td> 
-            <td>Spring Boot (v3.2.1)</td>  
-            <td>Spring 기반 웹 애플리케이션 프레임워크</td> 
-        </tr> 
-        <tr>    
-            <td>Spring Security</td> 
-            <td>인증 및 권한 관리 라이브러리</td> 
-        </tr> 
-        <tr> 
-            <td>    
-                <strong>데이터 처리</strong>
-            </td>
-            <td>Spring Data JPA</td> 
-            <td>ORM(Object Relational Mapping) 데이터 처리 라이브러리</td>
-        </tr> 
-        <tr> 
-            <td rowspan="2">   
-            <strong>데이터베이스</strong></td>    
-            <td>MySQL</td> 
-            <td>관계형 데이터베이스</td> 
-        </tr> 
-        <tr> 
-            <td>MySQL Connector</td>
-            <td>MySQL 데이터베이스 연동 드라이버</td>
-        </tr> 
-        <tr> 
-            <td rowspan="2">
-                <strong>보안</strong>
-            </td> 
-            <td>JWT (io.jsonwebtoken)</td>
-            <td>JSON Web Token 기반 인증 및 인가</td> 
-        </tr> 
-        <tr> 
-            <td>Spring OAuth2 Client</td> 
-            <td>OAuth2 기반 소셜 로그인 및 인증 처리</td> 
-        </tr> 
-        <tr> 
-            <td>
-                <strong>유효성 검사</strong>
-            </td> 
-            <td>Spring Boot Validation</td> 
-            <td>데이터 검증 라이브러리</td> 
-        </tr> 
-        <tr> 
-            <td rowspan="2">
-                <strong>유틸리티</strong>
-            </td> 
-            <td>Project Lombok</td>
-            <td>코드 간결화를 위한 애노테이션 라이브러리</td>
-        </tr> 
-            <tr> 
-                <td>Spring Cloud AWS</td>
-                <td>AWS 서비스 연동을 위한 라이브러리</td>
-            </tr> 
-        <tr> 
-            <td rowspan="2">
-                <strong>테스트</strong>
-            </td> 
-            <td>Spring Boot Test</td> 
-            <td>Spring 기반 테스트 프레임워크</td> 
-        </tr> 
-        <tr> 
-            <td>Spring Security Test</td>
-            <td>보안 기능 테스트 지원 라이브러리</td> 
-        </tr> 
-    </tbody> 
-</table>
-
+지속 가능한 패션을 위해 **REUSE · ECO · COMMUNITY · STYLE** 가치를 기반으로 설계했습니다.
 
 ---
 
+## ⭐ 주요 기능 (사용자 흐름 기준)
+
+---
+
+## 1) 메인 홈 (탐색 시작)
+
+<img src="https://github.com/user-attachments/assets/4a75a072-6719-4211-a12b-c43d02a88075" width="260" alt="메인"/>
+
+- 시즌 배너/이벤트 노출  
+- 최근 등록/인기/카테고리 탐색 진입점 제공  
+- 빠른 탐색 중심 UI 구성  
+
+---
+
+## 2) 상품 탐색 (최근 등록 · 인기 · 카테고리)
+
+| 최근 등록된 상품 | 인기 상품 | 카테고리별 |
+|---|---|---|
+| <img src="https://github.com/user-attachments/assets/7ad08c3b-34de-4a1c-b2a3-cd7b89388c4c" width="220" /> | <img src="https://github.com/user-attachments/assets/deefbe8e-3177-484a-ab9b-6ebf578dd520" width="220" /> | <img src="https://github.com/user-attachments/assets/6ef6912d-4a68-4962-bd92-a056bc7ae293" width="220" /> |
+
+- **최근 등록**: 최신 트렌드를 빠르게 탐색  
+- **인기 상품**: 좋아요 기반 랭킹 제공  
+- **카테고리별**: 대분류/소분류 + 성별 탭 기반 UX 제공  
+
+---
+
+## 3) 상품 정보 (상품 상세 · 마이샵)
+
+| 상품 상세 | 마이샵 |
+|---|---|
+| <img src="https://github.com/user-attachments/assets/dd066a3f-6954-46f4-a2e2-4eee85dba5c1" width="240" /> | <img src="https://github.com/user-attachments/assets/c22e0efd-fa47-443f-a50a-9a1a85f5c241" width="240" /> |
+
+- **상품 상세**: 이미지/가격/태그/카테고리/설명 + 좋아요  
+- **마이샵**: 판매 중/완료 상품 관리, 평점/프로필 관리  
+
+---
+
+## 4) 장바구니 (구매 준비)
+
+<img src="https://github.com/user-attachments/assets/9a051969-1392-44eb-9420-319d512a4893" width="260"/>
+
+- 전체/개별 선택  
+- 판매자별 금액 분리 및 합산  
+- 실시간 총 금액 반영  
+
+---
+
+## 5) 쿠폰 (혜택 적용)
+
+| 쿠폰 등록 | 쿠폰 확인 |
+|---|---|
+| <img src="https://github.com/user-attachments/assets/61e33dca-c638-4ca1-bc0c-a9a431645d98" width="240" /> | <img src="https://github.com/user-attachments/assets/e94a1426-cca2-4c66-8ff1-286489e3354d" width="240" /> |
+
+- 쿠폰 코드 입력 및 저장  
+- 적용 가능 여부 확인  
+- 결제 UX 강화  
+
+---
+
+## 6) FITPAY 충전 & 결제 (결제 플로우)
+
+| FITPAY 구매화면 | QR 결제 |
+|---|---|
+| <img src="https://github.com/user-attachments/assets/027a746b-b0c0-4153-ae45-32e89eb57e38" width="240" /> | <img src="https://github.com/user-attachments/assets/65ed784b-02fd-4a41-a223-897c49312121" width="240" /> |
+
+- FitPay 잔액 확인/충전  
+- 카카오페이 QR 결제 연동  
+- 결제 흐름 전환 (QR → 완료 화면)  
+
+---
+
+## 7) 관리자 페이지 (운영/관리)
+
+<img src="https://github.com/user-attachments/assets/0a6c413e-5477-423c-964b-373fdfa43558" width="900"/>
+
+- 사용자 상태 관리  
+- 누적 주문/결제 데이터 조회  
+- CSV Export  
+- ADMIN 전용 접근 제어  
+
+---
+
+# 🚀 설계 방향 (Architecture Overview)
+
+## 🔐 인증/인가(Security)
+- **Spring Security + JWT**
+- Access Token(헤더), Refresh Token(HttpOnly 쿠키)
+- Refresh Token DB 저장 → 도난·만료 관리 강화
+- Role 기반 접근 제한(MEMBER / ADMIN)
+- Logout 시 Refresh Token 즉시 삭제
+
+## ⚡ 비동기 이벤트 처리
+- **Kafka**로 좋아요 이벤트 비동기 처리  
+- **Redis**로 좋아요 실시간 읽기 캐싱  
+- **Spring Batch**로 Redis 누적 데이터 → DB 일괄 반영  
+  - 성능 + 정합성 확보
+
+## 🛠 예외 처리
+- 프로젝트 전역에서 사용하는 **커스텀 에러코드 시스템**
+- 일관된 JSON 포맷으로 반환
+- 프론트의 예외 핸들링 구조 최적화
+
+---
+
+# 📚 API 명세 (Swagger 기반)
+
+### 📌 Swagger 문서
+- Local: `http://localhost:8080/swagger-ui/index.html`
+- SwaggerHub: https://app.swaggerhub.com/apis/none-f10-fb1/fitloop-api/1.0.0
+
+### 🧾 요청 예시
+
+#### 회원가입
+```json
+{
+  "username": "testuser",
+  "password": "P@ssw0rd!",
+  "name": "홍길동",
+  "birthday": "1995-05-15",
+  "email": "test@example.com"
+} 
+```
+---
+
+<br><br>
+
+## Tech Stack (어필 포인트)
+
+### Frontend
+- **Next.js 15** / **React 19** / **TypeScript**
+- **Tailwind CSS** + **Ant Design** 기반 UI 구성
+- **TanStack Query**로 서버 상태 관리 및 캐싱/리패칭 최적화
+- **Axios** 기반 API 통신 레이어 분리
+- **Zustand**로 전역 상태(예: 좋아요/유저 상태 등) 관리
+- **Recharts**로 데이터 시각화 구성
+- **react-cookie**로 쿠키 기반 인증 처리
+- **lottie-react**로 인터랙션/모션 UX 강화
+
+---
+
+### Backend
+- **Spring Boot** 기반 REST API
+- **MySQL** + **JPA/Hibernate** 기반 데이터 모델링 및 영속성 관리
+- **Spring Security + JWT** 인증/인가 구조
+- **Google OAuth2 로그인** 연동
+- **AWS S3** 이미지 업로드/조회 처리
+- **Redis** 기반 캐싱/상태 데이터 처리 (예: 좋아요/실시간 카운트 확장)
+- **Kafka** 기반 이벤트 처리 구조(Producer/Consumer, JsonSerializer/Deserializer)
+- **Spring Batch**
+  - **Redis에 누적된 좋아요 수(실시간 카운트)를 일정 주기로 DB에 일괄 반영**하기 위한 배치 처리로 활용
+- **아임포트(Iamport) 결제 연동** 기반 외부 결제 API 연계
+
+> ⚠️ 보안: API Key/Secret, DB 비밀번호, JWT Secret 등 민감정보는  
+> `.env` 또는 `application-secret.yml`로 분리하고 Git에 포함하지 않습니다.
+
+---
 <br>
-
-## 🚀 설계 방향
-
-FITLOOP 백엔드는 Spring Boot & Spring Security 기반으로 구축되었으며, 보안과 유지보수성을 고려한 설계를 적용하였습니다.
-
-### 🔐 인증 및 권한 관리
-- **Spring Security & JWT 기반 인증 시스템 적용**
-    - 로그인 시 Access Token과 Refresh Token을 발급
-    - Access Token을 헤더에 저장하여 요청 시 포함
-    - 리프레시 토큰은 HttpOnly 쿠키 에 저장하여 보안 강화 
-    - DB에 리프레시 토큰을 저장하여 유효성 검증을 추가로 수행 
-    - 요청마다 JWT 필터를 통해 토큰 유효성 및 권한을 검증
-
-- **역할(Role) 기반 접근 제어**
-    - Spring Security의 SecurityConfig를 활용하여 API 접근 권한 관리
-    - 사용자 역할(MEMBER, ADMIN)에 따라 접근 가능한 엔드포인트를 구분
-    - 로그인 응답 시 사용자 권한 및 개인정보 입력 여부 를 반환하여 프론트엔드의 UI 렌더링을 지원
-
-- **안전한 로그아웃 처리**
-    - Spring Security 로그아웃 필터 구현
-    - 로그아웃 시 DB에서 리프레시 토큰 삭제
-    - 쿠키 만료 처리를 통해 클라이언트의 보안 유지
-
-### 🏛️ 엔티티 설계 및 매핑
-- **JPA를 활용한 엔티티 설계 및 단방향 매핑 적용**
-    - 유지보수성을 고려하여 단방향 매핑을 기본 원칙으로 설계
-    - 필요할 경우 지연 로딩을 적용하여 성능 최적화
-
-### 🚨 예외 처리
-
-- **커스텀 에러 코드 사용**
-    - 에러 유형을 명확히 정의하고, 일관된 JSON 형식으로 응답하여 프론트엔드의 오류 처리 용이성 향상
 
 ### 🧩 Kafka 적용
 
@@ -170,233 +198,7 @@ Kafka를 중심으로 `Producer (서비스)` → `Topic` → `Consumer (Redis �
 
 <br>
 
-## 코드 컨벤션
+## 🌱 마무리
 
-### ✅ Backend Convention
-- 변수, 메소드, 인스턴스를 작성할 때는 기본적으로 “Camel Case(카멜 케이스)”를 사용합니다.
-- 메소드명을 작성할 때는 동사 + 명사 형태로 구성합니다.
-- Class, Constructor를 작성할 때는 “Pascal Case(=upper 카멜 케이스)”를 사용합니다.
-- 약어는 가능하면 사용하지 않습니다. 
-- Repository/Controller/Service 경우, (엔티티명) + Repository/Controller/Service 형태로 작명합니다.
-- DTO가 요청/응답 중 어떤 상황에서 어떤 역할에서 사용되는지를 반드시 나타내야 합니다.
-  기본적으로 매핑에 사용되는 DTO인 경우 (엔티티명) + Request/Response 형태로 작명합니다.
-- 클래스를 import 할 때는 반드시 와일드카드(*) 없이 모든 클래스명을 다 써야 합니다.
-- 클래스, 메소드, 인스턴스 변수의 제한자는 Java Lauguage Specification에서 명시한 아래의 순서를 준수합니다.
-- 조건/반복문의 실행문이 한 줄로 끝나도 중괄호를 사용합니다.
-- 빈 줄은 명령문 그룹의 영역을 표시하기 위하여 사용합니다.
-- 식별자와 여는 소괄호 ()사이에는 공백을 삽입하지 않습니다.
-  생성자와 메소드의 선언, 호출, 어노테이션 선언 뒤에 쓰이는 소괄호가 이에 해당합니다.
-
-
-<br>
-<br>
-<br>
-
-### ⚙️ ERD 설계
-- [ERD 설계 보기](https://www.erdcloud.com/d/Ey2588ifii9X4k5A9)
-
-## 📚 API 명세 (Swagger 기반)
-
-FITLOOP 프로젝트는 Swagger(OpenAPI 3.0)를 활용하여 REST API 명세를 자동화하였으며, SwaggerHub를 통해 팀원들과 API 문서를 공유하고 관리하고 있습니다.
-
-### 🔗 API 문서 보기
-
-- [SwaggerHub 문서 보기](https://app.swaggerhub.com/apis/none-f10-fb1/fitloop-api/1.0.0)
-- 또는 `fitloop-api.yaml` 파일을 Postman 또는 Swagger Editor에서 불러와 사용 가능
-
----
-
-### 🧪 테스트 방법
-
-#### Swagger UI (로컬 테스트)
-- 주소: `http://localhost:8080/swagger-ui/index.html`
-- `Try it out` 버튼 클릭 후 실제 API 호출 가능 (JWT access 헤더 필요 시 수동 입력)
-
-#### Postman 테스트
-1. `fitloop-api.yaml` 파일을 다운로드
-2. Postman → `Import` → `File` → YAML 파일 선택
-3. 각 API 요청 실행 (`access` 헤더 등 필요 시 수동 입력)
-
----
-
-### 📌 주요 API 목록
-
-| Method | Endpoint                          | 설명                   |
-|--------|------------------------------------|------------------------|
-| POST   | `/api/v1/register`                | 회원가입               |
-| POST   | `/api/v1/users/profile`           | 사용자 프로필 등록     |
-| GET    | `/api/v1/user`                    | 유저 정보 조회         |
-| POST   | `/api/v1/products/register`       | 상품 등록              |
-| GET    | `/api/v1/products/{id}`           | 상품 상세 조회         |
-| GET    | `/api/v1/products/recent`         | 최근 상품 목록 조회    |
-| POST   | `/api/v1/cart/add`                | 장바구니 담기          |
-| GET    | `/api/v1/cart`                    | 장바구니 조회          |
-| DELETE | `/api/v1/cart/remove`             | 장바구니 항목 삭제     |
-| DELETE | `/api/v1/cart/clear`              | 장바구니 전체 비우기   |
-| POST   | `/api/v1/reissue`                 | JWT 토큰 재발급        |
-| GET    | `/api/v1/auth/{provider}`         | 소셜 로그인 (Google 등)|
-| GET    | `/health-check`                   | 서버 상태 확인         |
-
----
-
-### 🧾 요청 예시
-
-#### 회원가입
-```json
-{
-  "username": "testuser",
-  "password": "P@ssw0rd!",
-  "name": "홍길동",
-  "birthday": "1995-05-15",
-  "email": "test@example.com"
-} 
-```
-
-<br>
-<br>
-<br>
-
-## 🗓️ FITLOOP 프로젝트 개발 히스토리
-
-본 프로젝트는 애자일 방법론 중 하나인 스크럼(Scrum)을 적용하여 짧은 주기로 기능을 개발하고,<br> 지속적인 논의와 피드백을 통해 점진적으로 완성도를 높이는 방식으로 진행하였습니다.
-
-
-<details>
-  <summary>📅 2024년 12월 개발 히스토리 보기</summary>
-
-| 날짜 | 작업 내용 |
-|------|-----------|
-| 12.20 | 프로젝트 구조 설계 시작, 기능 구상 |
-| 12.21 | 프로젝트 기능 기획 |
-| 12.23 | 프로젝트 상세 기능 기획 |
-| 12.24 | 프로젝트명 확정(FitLoop), 컨벤션 논의 |
-| 12.26 | ERD 논의 시작 |
-| 12.27 | 로고 제작, 테이블 구성 논의 |
-| 12.28 | 이미지 정책, 구독 서비스, Enum 논의 |
-| 12.29 | 상태 이력 테이블 필요성 검토 |
-| 12.30 | ERD 구현 및 관계 설정, 배송지 테이블 추가 |
-| 12.31 | 구독형 서비스 논의 |
-
-</details>
-
-<details>
-  <summary>📅 2024년 1월 개발 히스토리 보기</summary>
-
-| 날짜 | 작업 내용 |
-|------|-----------|
-| 01.02 | 개발 일정 수립, JWT/SSR/Middleware 정리 |
-| 01.03 | Gradle 설정, 예외 처리 설계 |
-| 01.04 | 로고 및 GitHub 라벨 확정 |
-| 01.05 | 이슈/PR 템플릿 작성, AWS 및 쿠버네티스 학습 |
-| 01.06 | Ant Design 학습, 피그마 초안 |
-| 01.07 | 인증/인가 구조, HttpOnly 쿠키 정리 |
-| 01.08 | JWT와 SSR/CSR 개념 비교 |
-| 01.09 | ESLint 대응, 이미지 최적화 논의 |
-| 01.10 | 리프레시 토큰 구조, 삭제 처리 논의 |
-| 01.11 | JWT 로그인 로직 구성, 토큰 저장 전략 수립, 캐시(redis) 대해 논의 |
-| 01.12 | 회원 상태(status), @Transactional 처리 논의 |
-| 01.13 | 테이블 통합 vs 분리 → 분리 설계 선택 |
-| 01.14 | JWT 기반 코드 구현 시작 |
-| 01.15 | Axios 도입, JSON 전송 방식 결정 |
-| 01.16 | API 명세서 및 버튼 UI 기획 |
-| 01.17 | 계정 정보 페이지 개발 |
-| 01.19 | 시스템 기능 구현 내용 정리 |
-| 01.20 | 공통 에러 코드 및 전역 예외 처리 구성 |
-| 01.21 | 사용자 정의 예외 클래스 정리 |
-| 01.22 | Spring Security 필터 설정 논의 |
-| 01.23 | CORS 설정 및 토큰 로직 정리 |
-| 01.24 | RefreshToken 로직 개발 시작 |
-| 01.25 | 프론트 상태 관리, 진행률 UI 구성 |
-| 01.26 | 회원가입 유효성 검사 추가 |
-| 01.27 | 사용자 정의 에러 반환 방식 정리 |
-
-</details>
-
-<details>
-  <summary>📅 2024년 2월 개발 히스토리 보기</summary>
-
-| 날짜 | 작업 내용 |
-|------|-----------|
-| 02.14 | Enum/Boolean 필드 설계, 생일 예외 처리 개선 |
-| 02.21 | 로그인 후 개인정보 입력 여부 분기 설계 |
-| 02.23 | JWT 필터 permitAll 이슈 해결 방식 논의 |
-| 02.24 | 마이페이지 설계, 로그아웃 필터 개발 |
-| 02.25 | 로그아웃 필터 완성, 마이페이지 UI 구성 |
-| 02.26 | 상품 도메인 기획 및 등록/목록 페이지 분배 |
-| 02.28 | 공통 색상 시스템 구축, 광고 이미지 연동 설계 |
-
-</details>
-
-<details>
-  <summary>📅 2024년 3월 개발 히스토리 보기</summary>
-
-| 날짜 | 작업 내용 |
-|------|-----------|
-| 03.03 | Tailwind 및 스크롤바 스타일 개선 |
-| 03.04 | 카테고리 UI 및 페이지 이동 로직 구현, AWS 진행 |
-| 03.08 | 상품 등록 시 카테고리 선택 UI 논의 |
-| 03.11 | UserDetails ID 이슈 해결, 개인정보 입력 UI 보완 |
-| 03.12 | S3 광고 이미지 연동 컨트롤러 설계, 마이페이지 구성 |
-| 03.13 | URL 명칭 통일, 회원가입 UX 개선, 사용자 통계 테이블 설계 |
-| 03.14 | 상품 등록 URL 정의, 사용자 통계 테이블 설계 및 ERD 수정, 수정/삭제 버튼 피그마 반영 논의 |
-| 03.24 | 카테고리 태그 설정 방식 정리, 최근 본 상품 Redis 저장 구조 논의, 제품 조건 enum 지정 |
-| 03.25 | personalInfo undefined 이슈 해결, 쿠키 vs localStorage 비교, 이미지 업로드 구조 및 작업 분배 |
-| 03.26 | 상품 조건 관리 방식 정리, 빈 값 처리 로직 정의, 좋아요 기능 책임 분리 및 트리거 논의 |
-| 03.28 | SSR 대응을 위한 Next.js fetch 패턴 정리, 썸네일 처리 방식 통일, mypage API URL 통합 |
-| 03.29 | 카테고리 및 상품 상태 관리 방식 정리, 무한스크롤 UX 보완, redis 최근 본 상품 길이 제한 |
-
-</details>
-
-
-<details>
-  <summary>📅 2024년 4월 개발 히스토리 보기</summary>
-
-| 날짜 | 작업 내용 |
-|------|-----------|
-| 04.01 | 메인페이지 탭별 API 연동 방식 정리, useEffect 초기 요청 흐름 점검 |
-| 04.06 | 마이페이지 설계, 개인정보 수정 구조 재설계, 최근 본 상품 로직 연결 방식 정리 |
-| 04.21 | 카테고리 및 정렬 모달 toggle 방식 논의, 선택 필터 유지 방식 정리 |
-| 04.22 | 필터 API 연동 방식 정리, 상품 정렬 상태 유지 로직 정의 |
-| 04.23 | 정렬 및 필터 클릭 구조 설계, UI 리팩토링 방향 논의 |
-| 04.27 | 썸네일 리팩토링, 드래그 스크롤 버그 수정, 최근 본 상품 뷰 개선 |
-| 04.29 | 인기상품 가로 스크롤 구조 설계, 드래그 중 클릭 방지 처리 논의 |
-| 04.30 | 메인페이지 통합 스크롤 컨테이너 구조 적용, 상태 업데이트 흐름 점검 |
-
-</details>
-
-<details>
-  <summary>📅 2024년 5월 개발 히스토리 보기</summary>
-
-| 날짜 | 작업 내용 |
-|------|-----------|
-| 05.01 | 인기상품 가로 스크롤 드래그 최적화 및 클릭 구분 처리 |
-| 05.05 | 상품 상세페이지 요구사항 반영, 텍스트 설명 toggle 구조 설계 |
-| 05.06 | 중고 상품 상태 안내 toggle 정리, 탄소 절감 정보 toggle 로직 구현 |
-| 05.09 | 좋아요 실시간 반영 구조 설계, Redis 연동 구조 확인 |
-| 05.10 | 좋아요 상태 값 Zustand 관리 전환, 실시간 값 반영 방식 논의 |
-| 05.11 | Zustand로 like 상태 연동, Redis 반영 로직 점검 |
-| 05.12 | Redis에 좋아요 상태 저장 방식 정의, Kafka 이벤트 발행 구조 설계 |
-| 05.13 | Kafka 도입에 따른 Like 흐름 정리, 비동기 반영 방식 논의 |
-| 05.14 | 배치 도입 방향 논의, Partition 및 Consumer 그룹 분리 설계 |
-| 05.15 | Spring Batch 적용 구조 정리, Kafka 이벤트 별 Topic 분리 논의 |
-| 05.22 | draw.io 흐름도 스타일 조정, 사용자 중심 화살표 흐름 반영 |
-| 05.23 | 좋아요 누른 뒤 상태 유지 전략 점검, revalidate 방식 적용 |
-| 05.24 | ProductCard 드래그 클릭 구분 최적화, MainPage 인터랙션 정리 |
-| 05.25 | Kafka 이벤트 처리 흐름 정리, Redis 상태 캐싱 구조 확정 |
-| 05.26 | Spring Batch로 Redis 데이터를 DB에 주기적 반영 구조 완료 |
-| 05.28 | 마이페이지 최근 본 상품 데이터 구조 정리, SSR 대응 상태 관리 |
-
-</details>
-
-<details>
-  <summary>📅 2024년 6월 개발 히스토리 보기</summary>
-
-| 날짜 | 작업 내용 |
-|------|-----------|
-| 06.04 | MainPage lazyload 적용, Kakao Map 초기화 방식 변경 논의 |
-| 06.05 | Banner carousel 연결 구조 개선, 인기상품 목록 흐름 정리 |
-| 06.16 | Kafka 파티션 구조 검토, Redis key 구조 통일 논의 |
-| 06.17 | 좋아요 흐름 도식화 및 Redis-Kafka-DB 전이 구조 정리 |
-| 06.22 | 회의록 문서 통합 및 히스토리 관리 기준 확정 |
-
-</details>
+FITLOOP은 단순 중고 거래를 넘어,  
+**패션 콘텐츠와 커뮤니티를 연결하고 재사용을 촉진하는 순환형 플랫폼**을 목표로 개발했습니다.
